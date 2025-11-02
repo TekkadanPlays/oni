@@ -1,0 +1,77 @@
+@use '../../../styles/mixins' as *;
+
+$vert-spacing: 0.75rem;
+
+.root {
+  position: relative;
+  display: grid;
+  padding: var(--content-padding);
+  padding-left: var(--content-padding);
+  padding-right: var(--content-padding);
+  padding-top: calc(var(--content-padding) * 0.5);
+  color: var(--theme-color-components-text-on-light);
+}
+
+.row {
+  margin-bottom: $vert-spacing;
+}
+
+.logoTitleSection {
+  display: flex;
+  flex-direction: column;
+
+  .logo {
+    margin: auto 0.6rem;
+  }
+
+  @include screen(desktop) {
+    flex-direction: row;
+
+    .logo {
+      margin: 0.6rem;
+    }
+  }
+
+  @include screen(tablet) {
+    align-items: center;
+
+    .logo {
+      margin: 1.2rem auto;
+    }
+  }
+}
+
+.titleSection {
+  display: flex;
+  flex-direction: column;
+  margin-left: 0.6rem;
+
+  @include screen(tablet) {
+    margin-left: 0;
+  }
+
+  .title {
+    font-family: var(--theme-text-display-font-family);
+    font-size: 1.8rem;
+    font-weight: 600;
+    line-height: 30px;
+    margin: unset;
+  }
+
+  .subtitle {
+    font-size: 1.15rem;
+    font-weight: 300;
+    max-width: 900px;
+    margin: $vert-spacing 0;
+  }
+}
+
+.tagList {
+  color: var(--theme-color-palette-10);
+
+  span {
+    display: inline-block;
+    margin-right: 0.5rem;
+    font-weight: 400;
+  }
+}

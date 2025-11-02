@@ -1,0 +1,75 @@
+@use '../../../styles/mixins' as *;
+
+.outerContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.innerContainer {
+  width: clamp(00px, 100%, 600px);
+  display: flex;
+  flex-direction: column;
+  margin: 5vh auto;
+  padding: 2.4em;
+
+  @include screen(tablet) {
+    font-size: 1.2rem;
+    padding: 1em;
+    margin: 1rem 0.2rem;
+  }
+}
+
+.separator {
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+.lastLiveDate {
+  margin-top: 2rem;
+  font-size: 0.8rem;
+  opacity: 0.7;
+  font-family: var(--theme-text-body-font-family);
+  font-weight: 300;
+
+  .clockIcon {
+    margin-right: 6px;
+  }
+}
+
+.header {
+  font-family: var(--theme-text-display-font-family);
+  font-weight: 600;
+  font-size: 1.4rem;
+}
+
+.footer {
+  margin-top: 15px;
+}
+
+.actionLink {
+  color: var(--theme-color-action);
+  text-decoration: underline;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--color-owncast-palette-7);
+  }
+}
+
+// Styles for Translation component generated spans
+.bodyText {
+  :global(.notify-link),
+  :global(.follow-link) {
+    color: var(--theme-color-action);
+    text-decoration: underline;
+    cursor: pointer;
+
+    &:hover {
+      color: var(--color-owncast-palette-7);
+    }
+  }
+
+  line-height: 2rem;
+  font-size: 1.2rem;
+}

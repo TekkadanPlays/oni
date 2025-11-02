@@ -1,0 +1,51 @@
+@use '../../../../../web/styles/mixins' as *;
+
+.follower {
+  border-color: rgb(0 0 0 / 30%);
+  border-width: 1px;
+  border-style: solid;
+  padding: 10px;
+  border-radius: 15px;
+  background-color: var(--theme-color-background-main);
+  margin: 0.5em;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  height: 100%;
+  align-items: center;
+  transition: border-color 0.2s ease-in-out;
+
+  &:hover {
+    border-color: var(--theme-text-link);
+  }
+
+  .avatar {
+    height: 60px;
+    width: 60px;
+    border-color: rgb(0 0 0 / 30%);
+    border-width: 1px;
+    border-style: solid;
+    font-size: 1.8rem;
+  }
+
+  .avatarColumn {
+    max-width: 75px;
+    min-width: 75px;
+  }
+
+  .account {
+    display: block;
+    color: var(--theme-color-components-text-on-light);
+    font-size: 0.7rem;
+    line-height: 1.2;
+  }
+
+  .username {
+    display: block;
+    font-family: var(--theme-text-display-font-family);
+    font-weight: 600;
+    color: var(--theme-color-components-text-on-light);
+    font-size: 1rem;
+    line-height: 1.1;
+    padding-bottom: 5px;
+  }
+}

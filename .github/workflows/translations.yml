@@ -1,0 +1,72 @@
+# This workflow manages internationalization (i18n) with Crowdin
+# Triggers:
+#   - Hourly schedule to sync translations
+#   - Push with changes to translation files or config
+# Process:
+#   1. Extracts translatable strings from source code
+#   2. Uploads source strings to Crowdin
+#   3. Downloads translated strings from Crowdin
+#   4. Creates PR with updated translations
+# Note: Uses concurrency control to prevent overlapping runs
+
+name: Translation job
+
+on:
+  schedule:
+    # Run the workflow every hour
+    - cron: '0 * * * *'
+  push:
+    paths:
+      - 'web/i18n/en/translation.json'
+      - 'web/**/*.tsx'
+      - 'web/**/*.js'
+      - 'crowdin.yml'
+      - '.github/workflows/translations.yml'
+      - 'web/i18next-parser.config.mjs'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  generate-translations:
+    defaults:
+      run:
+        working-directory: ./web
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Generate translation files
+        run: npm run translate
+
+      - name: Crowdin upload sources/download translations
+        uses: crowdin/github-action@v2
+        with:
+          upload_sources: true
+          download_translations: true
+          create_pull_request: true
+          pull_request_title: 'New Translations'
+          localization_branch_name: translations
+          pull_request_base_branch_name: 'develop'
+          commit_message: 'Updated translations'
+          config: crowdin.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
+          CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
+
+      # - name: Commit changes
+      #   uses: EndBug/add-and-commit@v9
+      #   with:
+      #     author_name: Owncast
+      #     author_email: owncast@owncast.online
+      #     message: 'Commit updated translations'
+      #     add: 'web/i18n/**'
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

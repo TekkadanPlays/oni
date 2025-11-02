@@ -1,0 +1,86 @@
+# See https://docs.earthly.dev/ci-integration/vendor-specific-guides/gh-actions-integration
+# for details.
+
+# This workflow builds the development container image
+# Triggers:
+#   - Nightly scheduled builds (2 AM UTC)
+#   - Push/PR to develop with relevant file changes
+# Skips:
+#   - Documentation-only changes
+#   - Web-only changes (web/** without Go changes)
+
+name: Build development container
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  push:
+    branches:
+      - develop
+    paths:
+      - '**/*.go'
+      - 'go.mod'
+      - 'go.sum'
+      - 'Dockerfile'
+      - 'Earthfile'
+      - 'build/**'
+      - '.github/workflows/container.yaml'
+  pull_request:
+    branches:
+      - develop
+    paths:
+      - '**/*.go'
+      - 'go.mod'
+      - 'go.sum'
+      - 'Dockerfile'
+      - 'Earthfile'
+      - 'build/**'
+      - '.github/workflows/container.yaml'
+
+jobs:
+  Earthly:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Earthly
+        uses: earthly/actions-setup@v1
+        with:
+          version: 'latest' # or pin to an specific version, e.g. "v0.6.10"
+
+      - name: Log Earthly version
+        run: earthly --version
+
+      - name: Authenticate to GitHub Container Registry
+        if: ${{ github.event_name == 'schedule' && env.GH_CR_PAT != null }}
+        env:
+          GH_CR_PAT: ${{ secrets.GH_CR_PAT }}
+        run: echo "${{ secrets.GH_CR_PAT }}" | docker login https://ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          image: tonistiigi/binfmt:latest
+          platforms: all
+
+      - name: Check out pull request code
+        uses: actions/checkout@v5
+        if: github.event_name == 'pull_request'
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Check out repository code
+        uses: actions/checkout@v5
+        if: github.event_name == 'push' || github.event_name == 'schedule'
+
+      - name: Build and push
+        if: ${{ github.event_name == 'schedule' && env.GH_CR_PAT != null }}
+        env:
+          GH_CR_PAT: ${{ secrets.GH_CR_PAT }}
+          EARTHLY_BUILD_TAG: 'nightly'
+          EARTHLY_BUILD_BRANCH: 'develop'
+          EARTHLY_PUSH: true
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 20
+          max_attempts: 3
+          command: ./build/develop/container.sh

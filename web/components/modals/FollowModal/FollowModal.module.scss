@@ -1,0 +1,71 @@
+.header {
+  font-family: var(--theme-text-display-font-family);
+  font-size: 0.8rem;
+}
+
+.buttons {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.inputContainer {
+  font-family: var(--theme-text-display-font-family);
+  margin-bottom: 10px;
+
+  .instructions {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 5px 2px;
+  }
+
+  .footer {
+    font-size: 10px;
+    margin: 2px;
+    color: var(--theme-color-components-primary-button-text-disabled);
+  }
+}
+
+.account {
+  display: flex;
+  flex-direction: row;
+  margin-top: 5px;
+  margin-bottom: 10px;
+  font-size: 0.8rem;
+  border-color: var(--color-owncast-palette-5);
+  border-width: 2px;
+  border-style: dashed;
+  border-radius: 6px;
+  padding: 5px;
+
+  .logo {
+    border-radius: 50%;
+    width: 4em;
+    height: 4em;
+  }
+
+  .username {
+    display: flex;
+    flex-direction: column;
+    margin-left: 10px;
+    margin-top: 5px;
+
+    .name {
+      font-weight: 600;
+    }
+  }
+}
+
+.errorAlert {
+  margin-bottom: 1.25rem;
+  font-family: var(--theme-text-display-font-family);
+
+  :global(.ant-alert-message) {
+    font-size: 14px;
+  }
+
+  :global(.ant-alert-description) {
+    font-size: 12px;
+    font-family: monospace;
+  }
+}

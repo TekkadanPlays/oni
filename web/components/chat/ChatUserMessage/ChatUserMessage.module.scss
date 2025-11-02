@@ -1,0 +1,122 @@
+$border-style: 3px solid currentcolor;
+$p-size: 8px;
+$p-h-size: 8px;
+$p-v-size: 2px;
+
+.root {
+  border-left: $border-style;
+  position: relative;
+  font-size: var(--chat-message-text-size);
+  padding: $p-v-size $p-h-size;
+  color: var(--theme-color-components-chat-text);
+
+  * {
+    z-index: 100;
+  }
+
+  // Chat messages are wrapped in <p> tags. We don't want to render
+  // the default margins for these initial <p> tags, so we remove them here.
+  p:nth-of-type(1) {
+    margin: initial;
+  }
+
+  .user {
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+  }
+
+  .repeatUser {
+    // nolint: scss/at-extend-no-missing-placeholder
+    @extend .user;
+
+    display: none;
+  }
+
+  .userName {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .userBadges {
+    margin-left: 3px;
+    display: flex;
+    justify-content: space-between;
+
+    > * {
+      margin-left: 3px;
+    }
+  }
+
+  .message {
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    font-weight: 400;
+    position: relative;
+
+    mark {
+      padding-left: 0.3em;
+      padding-right: 0.3em;
+      color: var(--theme-color-palette-4);
+      border-radius: var(--chat-text-highlight-border-radius);
+      background-color: var(--color-owncast-palette-7);
+    }
+
+    a {
+      color: var(--theme-color-palette-12);
+
+      &:hover {
+        color: var(--theme-color-palette-4);
+      }
+    }
+  }
+
+  &.ownMessage {
+    border-left: none;
+    border-right: $border-style;
+
+    .background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: currentcolor;
+      opacity: 0.07;
+      border-radius: 0.25rem;
+      overflow: hidden;
+    }
+  }
+
+  .modMenuWrapper {
+    position: absolute;
+    display: none;
+    top: 5px;
+    right: 10px;
+    color: black;
+
+    & button:focus,
+    & button:active {
+      display: block !important;
+    }
+
+    button {
+      background-color: white;
+      border-radius: var(--theme-rounded-corners);
+      border-width: 0;
+      opacity: 0.8;
+    }
+  }
+
+  &:hover .modMenuWrapper {
+    display: block;
+  }
+}
+
+.messagePadding {
+  padding: 0.4rem 5px 0;
+}
+
+.messagePaddingCollapsed {
+  padding: 2px 5px 0;
+}

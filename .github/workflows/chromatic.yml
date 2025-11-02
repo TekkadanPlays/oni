@@ -1,0 +1,88 @@
+# .github/workflows/chromatic.yml
+
+# This workflow publishes Storybook to Chromatic for visual regression testing
+# Triggers:
+#   - Push/PR with changes to web components, stories, or styles
+# Skips:
+#   - Static files
+#   - Renovate bot PRs
+# Features:
+#   - Uses onlyChanged for efficient testing
+#   - Publishes visual diffs for review
+
+name: 'Chromatic'
+
+on:
+  push:
+    paths:
+      - 'web/components/**'
+      - 'web/stories/**'
+      - 'web/.storybook/**'
+      - 'web/**/*.{css,scss}'
+      - 'web/i18n/**'
+      - 'web/package.json'
+      - 'web/package-lock.json'
+      - '.github/workflows/chromatic.yml'
+  pull_request:
+    paths:
+      - 'web/components/**'
+      - 'web/stories/**'
+      - 'web/.storybook/**'
+      - 'web/**/*.{css,scss}'
+      - 'web/i18n/**'
+      - 'web/package.json'
+      - 'web/package-lock.json'
+      - '.github/workflows/chromatic.yml'
+
+# List of jobs
+jobs:
+  chromatic-deployment:
+    # Operating System
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./web
+
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@v5
+        with:
+          concurrent_skipping: 'same_content_newer'
+
+      - name: Check out repository code (Push)
+        if: github.event_name == 'push'
+        uses: actions/checkout@v5
+
+      - name: Check out pull request code (PR)
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+
+      - name: Get changed files
+        id: changed-files-yaml
+        uses: tj-actions/changed-files@v47
+        with:
+          path: 'web'
+          files_ignore: |
+            static/**
+            web/next.config.js
+          files_yaml: |
+            src:
+              - '**/*.{js,ts,tsx,jsx,md}'
+
+      - name: Install dependencies
+        if: ${{ github.actor != 'renovate[bot]' && github.actor != 'renovate' && steps.changed-files-yaml.outputs.src_any_changed == 'true'}}
+        run: npm install
+
+      - name: Publish to Chromatic
+        if: ${{ github.actor != 'renovate[bot]' && github.actor != 'renovate' && steps.changed-files-yaml.outputs.src_any_changed == 'true' }}
+        uses: chromaui/action@v13
+
+        # Chromatic GitHub Action options
+        with:
+          workingDir: web
+          projectToken: f47410569b62
+          onlyChanged: true

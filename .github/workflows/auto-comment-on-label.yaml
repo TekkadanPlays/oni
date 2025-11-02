@@ -1,0 +1,42 @@
+name: Add comment on good first issues
+on:
+  issues:
+    types:
+      - labeled
+jobs:
+  add-comment:
+    if: github.event.label.name == 'good first issue' || github.event.label.name == 'help wanted' || github.event.label.name == 'hacktoberfest'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Add comment
+        uses: peter-evans/create-or-update-comment@cf911f109bd9a26f1d626a8c3276384ddec0e552
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          body: |
+            ## Good First Issue
+
+             This item was marked as a good first issue because of the following:
+
+             - It's self contained as a single feature or change.
+             - Is clear when it's complete.
+             - You do not need deep knowledge of Owncast to accomplish it.
+
+
+             ### Next Steps
+
+             1. Comment on this issue before starting work so it can be assigned to you. Also, this issue may have been filed with limited detail or changes may have occurred that are worth sharing with you before you start work.
+             2. Drop by our [community chat](https://owncast.rocket.chat/) if you'd like to be involved in more real-time discussion around Owncast to talk about this change.
+             3. Follow the project's getting started tips to make sure you can [build and run the project from source](https://owncast.online/development).
+
+             ### Notes
+
+             - Development takes place on the `develop` branch.
+             - We use Storybook for testing and developing React components. `npm run storybook`. A hosted version [is available for viewing](https://owncast.online/components).
+             - If you need to install the Go programming language to run the Owncast backend it's simple from [here](https://go.dev/dl/).
+             - Active contributors get an Owncast t-shirt! Ask about it if you feel like you've been contributing and haven't yet been given one.
+
+             ### New to Git?
+
+             If you're brand new to Git you may want a short primer about the Fork -> Commit -> Pull Request workflow that enables changes to get made collaboratively using git. Visit the [First Contributions](https://github.com/firstcontributions/first-contributions) project to learn step-by-step how to commit a change to a Git repository such as this one.

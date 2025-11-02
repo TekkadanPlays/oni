@@ -1,0 +1,33 @@
+@use '../../../styles/mixins' as *;
+
+.footer {
+  display: flex;
+  align-items: center;
+  flex-flow: row wrap;
+  justify-content: space-between;
+  background-color: var(--theme-color-background-header);
+  color: var(--theme-color-components-text-on-dark);
+  font-family: var(--theme-text-body-font-family);
+  padding: 0.6rem var(--footer-padding-x);
+  font-size: 0.75rem;
+  font-weight: 400;
+  border-top: 1px solid rgb(214 211 211 / 50%);
+  width: 100%;
+
+  @include screen(tablet) {
+    font-size: 10px;
+  }
+
+  a {
+    color: var(--theme-color-components-text-on-dark);
+    text-decoration: none;
+  }
+
+  .links {
+    column-gap: 2rem;
+    width: auto;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+  }
+}

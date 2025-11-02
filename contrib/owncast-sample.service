@@ -1,0 +1,19 @@
+[Unit]
+Description=Owncast Service
+
+[Service]
+Type=simple
+WorkingDirectory=[path to owncast directory]
+ReadWritePaths=[path to owncast directory]
+ExecStart=[path to owncast directory]/owncast
+Restart=always
+RestartSec=5
+User=[user to run owncast as]
+Group=[group to run owncast as]
+NoNewPrivileges=true
+SecureBits=noroot
+ProtectSystem=strict
+ProtectHome=read-only
+
+[Install]
+WantedBy=multi-user.target

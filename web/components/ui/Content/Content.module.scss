@@ -1,0 +1,148 @@
+@use '../../../styles/mixins' as *;
+
+.main {
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  height: 100%;
+}
+
+.mainColumn {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  overflow: auto;
+}
+
+.mainColumn::-webkit-scrollbar,
+.mainColumn::-webkit-scrollbar-thumb {
+  display: none;
+}
+
+.lowerSection {
+  padding: var(--content-padding);
+}
+
+.lowerSectionMobileTabbed {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  flex-shrink: 0;
+  position: relative;
+  bottom: 0;
+  width: 100%;
+
+  @include screen(tablet) {
+    top: 0;
+    position: relative;
+  }
+
+  :global(.ant-tabs-nav) {
+    margin-bottom: 0;
+    padding-top: 0.5vh;
+    padding-left: 1vw;
+  }
+}
+
+.topSectionElement {
+  background-color: var(--theme-color-components-video-background);
+
+  @include screen(tablet) {
+    // "sticks" the stream to the top of the page
+    position: sticky;
+    z-index: 100;
+  }
+}
+
+.offlineBanner {
+  color: var(--theme-color-palette-4);
+}
+
+.actionButtonsContainer {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+
+.mobileActionButtons {
+  display: none;
+
+  @include screen(tablet) {
+    display: flex;
+    align-items: center;
+    position: absolute;
+    margin: 5px;
+    right: 5px;
+    z-index: 199;
+  }
+
+  > * {
+    margin-left: 5px;
+    margin-right: 5px;
+  }
+}
+
+.desktopActionButtons {
+  display: block;
+  width: 100%;
+
+  @include screen(tablet) {
+    display: none;
+  }
+}
+
+// not sure if this is needed
+.statusBar {
+  flex-shrink: 0;
+}
+
+// not sure if this is needed
+.loadingSpinner {
+  display: grid;
+}
+
+.defaultTabBar {
+  width: 85%;
+}
+
+.bottomPageContentContainer {
+  background-color: var(--theme-color-components-content-background);
+  padding: calc(2 * var(--content-padding));
+  border-radius: var(--theme-rounded-corners);
+  width: 100%;
+  margin-bottom: 20px;
+
+  h1,
+  h2,
+  h3 {
+    line-height: 2rem;
+  }
+
+  h1:first-child,
+  h2:first-child,
+  h3:first-child {
+    margin-top: unset;
+  }
+}
+
+.floatingMobileChatModalButton {
+  position: fixed;
+  width: 100px;
+  height: 40px;
+  bottom: 40px;
+  right: var(--content-padding);
+  font-weight: 600;
+  font-size: 1em;
+  z-index: 99;
+  background-color: var(--theme-color-components-chat-background);
+  border-width: 0;
+  box-shadow: 0 1px 3px 1px rgb(0 0 0 / 20%);
+}
+
+.centerSpinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}

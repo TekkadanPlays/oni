@@ -1,0 +1,78 @@
+version: "2"
+run:
+  go: "1.25.3"
+  modules-download-mode: readonly
+  tests: false
+linters:
+  enable:
+    - bodyclose
+    - copyloopvar
+    - cyclop
+    - dupl
+    - forbidigo
+    - goconst
+    - gocritic
+    - godot
+    - godox
+    - goprintffuncname
+    - gosec
+    - misspell
+    - nakedret
+    - prealloc
+    - revive
+    - rowserrcheck
+    - sqlclosecheck
+    - unconvert
+    - unparam
+    - wastedassign
+    - whitespace
+  settings:
+    cyclop:
+      max-complexity: 15
+      package-average: 0
+    dupl:
+      threshold: 200
+    forbidigo:
+      forbid:
+        - pattern: ^(fmt\.Print(|f|ln)|print|println)
+        - pattern: ^panic.*$
+    gocritic:
+      disabled-checks:
+        - ifElseChain
+        - exitAfterDefer
+    revive:
+      rules:
+        - name: package-comments
+          disabled: true
+  exclusions:
+    generated: lax
+    rules:
+      - path: (.+)\.go$
+        text: Subprocess launch(ed with variable|ing should be audited)
+      - path: (.+)\.go$
+        text: Error return value of .((os\.)?std(out|err)\..*|.*Close|.*Flush|os\.Remove(All)?|.*print(f|ln)?|os\.(Un)?Setenv). is not checked
+      - path: (.+)\.go$
+        text: G307
+      - path: (.+)\.go$
+        text: composite literal uses unkeyed fields
+      - path: (.+)\.go$
+        text: 'SA1019.*aws-sdk-go.*deprecated'
+      - linters:
+          - cyclop
+        path: (.+)_test\.go
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+formatters:
+  enable:
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

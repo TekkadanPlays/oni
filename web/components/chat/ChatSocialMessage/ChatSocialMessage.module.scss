@@ -1,0 +1,60 @@
+.followerPadding {
+  padding: 0.5em;
+}
+
+.follower {
+  border-color: rgb(0 0 0 / 30%);
+  border-width: 1px;
+  border-style: solid;
+  padding: 10px;
+  border-radius: var(--theme-rounded-corners);
+  background-color: var(--theme-color-background-main);
+
+  &:hover {
+    border-color: var(--theme-text-link);
+  }
+
+  .avatar {
+    height: 60px;
+    width: 60px;
+    border-color: rgb(0 0 0 / 30%);
+    border-width: 1px;
+    border-style: solid;
+    font-size: 1.8rem;
+  }
+
+  .avatarColumn {
+    max-width: 75px;
+    min-width: 75px;
+  }
+
+  .body {
+    color: var(--theme-color-components-text-on-light);
+    text-overflow: ellipsis;
+    line-height: 1.2rem;
+
+    p {
+      margin: 0;
+    }
+  }
+
+  .account {
+    font-family: var(--theme-text-display-font-family);
+    font-weight: 600;
+    color: var(--theme-color-components-text-on-light);
+  }
+
+  .icon {
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    top: 40px;
+    left: 40px;
+    border-color: var(--theme-color-background-main);
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+  }
+}

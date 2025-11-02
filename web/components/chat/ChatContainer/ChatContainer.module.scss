@@ -1,0 +1,98 @@
+@use '../../../styles/mixins' as *;
+
+// The button that is displayed to scroll to the bottom of the chat.
+.toBottomWrap {
+  align-self: center;
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  bottom: 75px;
+  color: var(--theme-color-components-chat-background);
+
+  button {
+    background-color: var(--theme-color-background-light);
+    z-index: 9999;
+    box-shadow:
+      0 1px 2px 0 rgb(0 0 0 / 10%),
+      0 1px 5px 0 rgb(0 0 0 / 12%);
+    display: flex;
+    align-items: center;
+    opacity: 0;
+    animation: show 250ms forwards ease-in-out 500ms;
+    font-size: 12px;
+    font-weight: 600;
+  }
+}
+
+.chatContainer {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--theme-color-components-chat-background);
+  height: 100%;
+  font-size: var(--chat-message-text-size);
+}
+
+.resizeHandle {
+  background: linear-gradient(
+    45deg,
+    transparent 0,
+    transparent 4px,
+    var(--color-owncast-palette-6) 4px,
+    var(--color-owncast-palette-6) 5px,
+    transparent 5px,
+    transparent 9px,
+    var(--color-owncast-palette-6) 9px,
+    var(--color-owncast-palette-6) 10px,
+    transparent 10px,
+    transparent 14px,
+    var(--color-owncast-palette-6) 14px,
+    var(--color-owncast-palette-6) 15px,
+    transparent 15px
+  );
+  position: absolute;
+  bottom: 0;
+  width: 30px;
+  height: 30px;
+  cursor: col-resize;
+}
+
+.virtuoso {
+  width: auto;
+  flex-grow: 1;
+  overflow: hidden scroll;
+  overscroll-behavior: contain;
+}
+
+.virtuoso::-webkit-scrollbar {
+  display: none;
+}
+
+.virtuoso::-webkit-scrollbar-thumb {
+  display: none;
+}
+
+.chatTextField {
+  border-top: 1px solid lightgray;
+}
+
+@keyframes show {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.chatAccessibilityHidden {
+  top: 0;
+  left: -2px;
+  width: 1px;
+  height: 1px;
+  position: absolute;
+  overflow: hidden;
+}

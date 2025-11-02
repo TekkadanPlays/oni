@@ -1,0 +1,50 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+.DS_Store
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# ignore IDE specific files
+.idea/
+*.iml
+
+# Dependency directories (remove the comment below to include it)
+vendor/
+
+#oni specific
+/config*.yaml
+/stats.json
+oni
+webroot/thumbnail.jpg
+webroot/preview.gif
+webroot/hls
+webroot/static/content.md
+hls/
+!test/automated/hls/
+dist/
+data/
+transcoder.log
+oni.log*
+owncast.log*
+chat.db
+.yp.key
+backup/
+!webroot/js/web_modules/**/dist
+!core/data
+test/test.db
+test/automated/browser/screenshots
+lefthook-local.yml
+test/automated/browser/cypress/screenshots
+test/automated/browser/cypress/videos
+web/style-definitions/build/
+
+web/public/sw.js
+web/public/workbox-*.js

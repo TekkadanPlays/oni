@@ -1,0 +1,15 @@
+@use '../../../styles/mixins' as *;
+
+.layout {
+  // this margin is for fixed header
+  padding-top: var(--header-height);
+  background-color: var(--theme-color-main-background);
+  height: 100vh;
+  display: flex;
+  position: relative;
+
+  // add some spacing between the last row of content and the footer
+  .footerContainer {
+    margin-top: 5em;
+  }
+}

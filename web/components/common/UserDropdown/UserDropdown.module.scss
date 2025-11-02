@@ -1,0 +1,34 @@
+@use '../../../styles/mixins' as *;
+
+.root {
+  button {
+    border: none;
+
+    .ant-space {
+      .ant-space-item {
+        color: var(--theme-unknown-2);
+      }
+    }
+  }
+
+  .username {
+    display: inline;
+
+    @include screen(desktop) {
+      font-weight: 600;
+      font-size: 0.8rem;
+    }
+  }
+
+  .hideTitleOnMobile {
+    @include screen(mobile) {
+      display: none;
+    }
+  }
+}
+
+.chatToggle {
+  @include screen(tablet) {
+    display: none;
+  }
+}

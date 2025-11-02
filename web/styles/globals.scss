@@ -1,0 +1,133 @@
+@use './mixins' as *;
+@import '@fontsource/inter/300.css';
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/800.css';
+@import '@fontsource/poppins/400.css';
+@import '@fontsource/poppins/600.css';
+
+:root {
+  --content-padding: 0.95rem;
+  --module-spacing: 12px; // margin size between lines of stuff, if needed
+  --header-height: 70px; // needed for making main content scrollable;
+  --content-height: calc(100vh - var(--header-height));
+  --replacement-bar-height: 46px; // needed for making main content scrollable on mobile;
+
+  // chat modules
+  --chat-message-text-size: 0.825rem;
+  --chat-notification-icon-padding: 6px;
+  --chat-message-padding: 10px;
+  --chat-text-highlight-border-radius: 3px;
+  --player-container-height: 75vh;
+  --status-bar-height: 2rem;
+  --footer-padding-x: 1rem;
+
+  @include screen(tablet) {
+    --header-height: 3.85rem;
+    --player-container-height: 400px;
+  }
+
+  @include screen(mobile) {
+    --player-container-height: 250px;
+  }
+}
+
+::selection {
+  background-color: var(--theme-color-palette-12);
+}
+
+html {
+  font-size: clamp(15px, 1.35vw, 16px);
+}
+
+body {
+  font-family: var(--theme-text-body-font-family);
+  font-weight: 300;
+  margin: 0;
+  background-color: var(--theme-color-background-main);
+
+  div,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p {
+    padding: 0;
+    margin-top: revert;
+    margin-bottom: revert;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--theme-text-display-font-family);
+    color: unset; // reset some colors from global.less file
+  }
+
+  h1 {
+    font-size: 2em;
+    font-weight: 600;
+  }
+
+  h2 {
+    font-size: 1.5em;
+    font-weight: 400;
+  }
+
+  h3 {
+    font-family: var(--theme-text-body-font-family);
+    font-size: 1.25em;
+    font-weight: 600;
+  }
+
+  h4 {
+    font-size: 1em;
+  }
+
+  ul {
+    list-style: square;
+  }
+
+  ul,
+  ol {
+    margin: 0.7em 0 0;
+    padding: 0 1em;
+
+    ul,
+    ol {
+      margin: 0;
+    }
+
+    li {
+      margin: 0.175em 0 0;
+    }
+  }
+
+  a {
+    color: var(--theme-color-action);
+    overflow-wrap: break-word;
+
+    &:hover {
+      color: var(--theme-color-action-hover);
+    }
+  }
+
+  strong,
+  b {
+    font-weight: 600;
+  }
+}
+
+.emoji {
+  font-size: 30px;
+  height: 30px;
+  line-height: 30px;
+  margin-left: 2px;
+  margin-right: 2px;
+  vertical-align: middle;
+}

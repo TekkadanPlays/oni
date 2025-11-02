@@ -1,0 +1,16 @@
+{
+  "name": "owncast-browser-tests",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@cypress-audit/lighthouse": "^1.3.1",
+    "cypress": "^10.10.0",
+    "cypress-audit": "^1.1.0"
+  }
+}

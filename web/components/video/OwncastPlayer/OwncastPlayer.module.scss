@@ -1,0 +1,32 @@
+@use '../../../styles/mixins' as *;
+
+.container {
+  display: grid;
+  width: 100%;
+  justify-items: center;
+  height: var(--player-container-height);
+  aspect-ratio: 16 / 9;
+
+  @media (width <= 1200px) {
+    height: 100%;
+    max-height: var(--player-container-height);
+  }
+
+  @include screen(desktop) {
+    // prevent sidebar from overlapping stream
+    // padding-right: 320px;
+  }
+
+  // set height of player for tablet
+  @include screen(tablet) {
+    height: var(--player-container-height);
+    max-height: var(--player-container-height);
+  }
+
+  .player,
+  .poster {
+    width: 100%;
+    grid-column: 1;
+    grid-row: 1;
+  }
+}
