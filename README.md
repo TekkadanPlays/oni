@@ -26,12 +26,12 @@ Oni is a fork of [Owncast](https://owncast.online) with support for Nostr. Oni e
 
 The following Nostr event types and features are currently supported (or in progress):
 
-- **Nostr Login**
-  - Admin Controls
-  - Viewer Login
-- **[NIP-53](https://github.com/vitorpamplona/nips/blob/master/53.md)** - Live Event Broadcasting
-- **[NIP-47](https://github.com/vitorpamplona/nips/blob/master/47.md)** - Nostr Wallet Connect
-- **[NIP-57](https://github.com/vitorpamplona/nips/blob/master/57.md)** - Lightning Zaps
+- [x] **Nostr Login**
+  - [x] Admin Controls
+  - [ ] Viewer Login
+- [ ] **[NIP-53](https://github.com/vitorpamplona/nips/blob/master/53.md)** - Live Event Broadcasting
+- [ ] **[NIP-47](https://github.com/vitorpamplona/nips/blob/master/47.md)** - Nostr Wallet Connect
+- [ ] **[NIP-57](https://github.com/vitorpamplona/nips/blob/master/57.md)** - Lightning Zaps
 
 ## Getting Started
 
@@ -39,18 +39,8 @@ Oni is based on Owncast, so most of the [Owncast documentation](https://owncast.
 
 ## Building from Source
 
-Oni consists of two projects.
-
-1. The Oni backend is written in Go.
-1. The frontend is written in React.
-
-### Important note about source code and the develop branch
-
-The `develop` branch is always the most up-to-date state of development and this may not be what you always want. If you want to run the latest released stable version, check out the tag related to that release.
-
-> Note: Currently Oni does not natively support Windows servers. However, Windows Users can use Windows Subsystem for Linux (WSL2) to install Oni.
-
-### Backend
+<details>
+<summary>Backend</summary>
 
 The Oni backend is a service written in Go.
 
@@ -62,14 +52,17 @@ The Oni backend is a service written in Go.
 1. `go run main.go` will run from the source.
 1. Visit `http://yourserver:8080` to access the web interface or `http://yourserver:8080/admin` to access the admin.
 1. Point your [broadcasting software](https://owncast.online/docs/broadcasting/) at your new server and start streaming.
+</details>
 
-### Frontend
+<details>
+<summary>Frontend</summary>
 
 The frontend is the web interface that includes the player, chat, embed components, and other UI.
 
 1. This project lives in the `web` directory.
 1. Run `npm install` to install the Javascript dependencies.
 1. Run `npm run dev`
+</details>
 
 ## Contributing
 
