@@ -86,16 +86,16 @@ export class NostrSettingsTab extends Component<{}, NostrSettingsTabState> {
     return (
       <div>
         <div class="mb-6">
-          <h1 class="text-xl font-bold text-foreground tracking-tight">Nostr Identity</h1>
-          <p class="text-[13px] text-muted-foreground/60 mt-0.5">Connect your Nostr account and manage live event publishing.</p>
+          <h1 class="text-2xl font-bold text-foreground tracking-tight">Nostr Identity</h1>
+          <p class="text-sm text-muted-foreground mt-1">Connect your Nostr account and manage live event publishing.</p>
         </div>
 
         {/* Auth Section */}
-        <Card className="mb-4 py-4 gap-3">
-          <CardHeader>
-            <CardTitle className="text-sm">Account</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <Card className="mb-4 overflow-hidden">
+          <div class="px-6 py-4 border-b border-border">
+            <p class="text-sm font-semibold text-foreground">Account</p>
+          </div>
+          <CardContent className="p-6">
             {pubkey ? (
               <div>
                 <div class="flex items-start gap-4 mb-4">
@@ -160,19 +160,15 @@ export class NostrSettingsTab extends Component<{}, NostrSettingsTabState> {
         </Card>
 
         {/* NIP-53 Live Events Section */}
-        <Card className="mb-4 py-4 gap-3">
-          <CardHeader>
-            <div class="flex items-center justify-between">
-              <CardTitle className="text-sm">NIP-53 Live Events</CardTitle>
-              <Switch checked={liveEventsEnabled} onChange={(checked: boolean) => setLiveEventsEnabled(checked)} />
+        <Card className="mb-4 overflow-hidden">
+          <div class="flex items-center justify-between px-6 py-4 border-b border-border">
+            <div>
+              <p class="text-sm font-semibold text-foreground">NIP-53 Live Events</p>
+              <p class="text-xs text-muted-foreground mt-0.5">Auto-publish live activity events to your outbox relays.</p>
             </div>
-            <CardDescription>
-              When enabled, Oni will automatically publish a NIP-53 live activity event (kind 30311)
-              to your outbox relays when the stream goes live, update it periodically with viewer count,
-              and mark it as ended when the stream stops.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+            <Switch checked={liveEventsEnabled} onChange={(checked: boolean) => setLiveEventsEnabled(checked)} />
+          </div>
+          <CardContent className="p-6">
             {liveEventsEnabled && !pubkey && (
               <Alert variant="destructive" className="mb-2">
                 <AlertDescription>You must connect a Nostr identity above to publish live events.</AlertDescription>
@@ -196,11 +192,11 @@ export class NostrSettingsTab extends Component<{}, NostrSettingsTabState> {
         </Card>
 
         {/* Info Section */}
-        <Card className="py-4 gap-3">
-          <CardHeader>
-            <CardTitle className="text-sm">How it works</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <Card className="overflow-hidden">
+          <div class="px-6 py-4 border-b border-border">
+            <p class="text-sm font-semibold text-foreground">How it works</p>
+          </div>
+          <CardContent className="p-6">
             <ul class="text-xs text-muted-foreground space-y-1.5">
               <li>• Your Nostr identity is bootstrapped by querying indexer relays for your profile (kind 0) and relay list (NIP-65 kind 10002).</li>
               <li>• Outbox and inbox relays from your NIP-65 list are automatically populated in the Relay Manager.</li>

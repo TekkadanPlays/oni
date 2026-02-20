@@ -81,37 +81,33 @@ export class RelayManagerTab extends Component<{}, RelayManagerTabState> {
     return (
       <Card
         key={profile.id}
-        className={cn('py-3 gap-2', isActive && 'border-primary bg-primary/5')}
+        className={cn('overflow-hidden', isActive && 'border-primary/40')}
       >
-        <CardHeader>
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <Button
-                variant={isActive ? 'link' : 'ghost'}
-                size="sm"
-                className={cn('px-0 h-auto', isActive && 'text-primary')}
-                onClick={() => setActiveProfile(profile.id)}
-              >
-                {profile.name}
-              </Button>
-              {isActive && (
-                <Badge variant="default" className="text-[10px] px-1.5 py-0">Active</Badge>
-              )}
-              {profile.builtin && (
-                <Badge variant="secondary" className="text-[10px] px-1.5 py-0">Built-in</Badge>
-              )}
-            </div>
-            <div class="flex items-center gap-2">
-              <Badge variant="ghost" className="text-[10px]">{profile.relays.length} relays</Badge>
-              {!profile.builtin && (
-                <Button variant="ghost" size="xs" className="text-destructive hover:text-destructive" onClick={() => deleteProfile(profile.id)}>
-                  Delete
-                </Button>
-              )}
-            </div>
+        <div class={cn('flex items-center justify-between px-5 py-3 border-b border-border', isActive && 'bg-primary/[0.04]')}>
+          <div class="flex items-center gap-2">
+            <button
+              class={cn('text-sm font-semibold cursor-pointer bg-transparent border-none', isActive ? 'text-primary' : 'text-foreground hover:text-primary')}
+              onClick={() => setActiveProfile(profile.id)}
+            >
+              {profile.name}
+            </button>
+            {isActive && (
+              <Badge variant="default" className="text-[10px] px-1.5 py-0">Active</Badge>
+            )}
+            {profile.builtin && (
+              <Badge variant="secondary" className="text-[10px] px-1.5 py-0">Built-in</Badge>
+            )}
           </div>
-        </CardHeader>
-        <CardContent>
+          <div class="flex items-center gap-2">
+            <Badge variant="outline" className="text-[10px]">{profile.relays.length} relays</Badge>
+            {!profile.builtin && (
+              <Button variant="ghost" size="xs" className="text-destructive hover:text-destructive" onClick={() => deleteProfile(profile.id)}>
+                Delete
+              </Button>
+            )}
+          </div>
+        </div>
+        <CardContent className="p-5">
           <div class="space-y-1.5 mb-3">
             {profile.relays.length === 0 ? (
               <p class="text-xs text-muted-foreground italic">No relays configured</p>
@@ -162,8 +158,8 @@ export class RelayManagerTab extends Component<{}, RelayManagerTabState> {
       <div>
         <div class="flex items-center justify-between mb-6">
           <div>
-            <h1 class="text-xl font-bold text-foreground tracking-tight">Relay Manager</h1>
-            <p class="text-[13px] text-muted-foreground/60 mt-0.5">Manage relay profiles and connections.</p>
+            <h1 class="text-2xl font-bold text-foreground tracking-tight">Relay Manager</h1>
+            <p class="text-sm text-muted-foreground mt-1">Manage relay profiles and connections.</p>
           </div>
           <Button
             variant={showAddProfile ? 'outline' : 'secondary'}

@@ -171,8 +171,8 @@ export class LogsTab extends Component<{ token: string }, LogsTabState> {
       <div>
         <div class="flex items-center justify-between mb-6">
           <div>
-            <h1 class="text-xl font-bold text-foreground tracking-tight">Logs</h1>
-            <p class="text-[13px] text-muted-foreground/60 mt-0.5">Server logs and warnings.</p>
+            <h1 class="text-2xl font-bold text-foreground tracking-tight">Logs</h1>
+            <p class="text-sm text-muted-foreground mt-1">Server logs and warnings.</p>
           </div>
           <div class="flex items-center gap-2">
             <Button variant="secondary" size="sm" onClick={this.handleRefresh}>
@@ -254,7 +254,7 @@ export class LogsTab extends Component<{ token: string }, LogsTabState> {
         {/* Log entries */}
         <div
           ref={(el: HTMLDivElement | null) => { this.scrollRef = el; }}
-          class="rounded-xl border border-border/40 bg-card/30 overflow-hidden"
+          class="rounded-xl border border-border bg-card/40 overflow-hidden"
         >
           <div
             class="overflow-y-auto font-mono text-[11px] leading-relaxed"

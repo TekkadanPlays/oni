@@ -146,10 +146,10 @@ export class ChatConfigTab extends Component<{ token: string }, ChatConfigState>
     apiCall: (token: string, value: boolean) => Promise<unknown>,
   ) {
     return (
-      <div class="flex items-center justify-between py-3">
+      <div class="flex items-center justify-between rounded-xl border border-border bg-muted/20 p-4">
         <div class="pr-4">
           <p class="text-sm font-medium text-foreground">{label}</p>
-          <p class="text-[11px] text-muted-foreground leading-relaxed">{description}</p>
+          <p class="text-xs text-muted-foreground mt-0.5 leading-relaxed">{description}</p>
         </div>
         <Switch
           checked={checked}
@@ -178,28 +178,30 @@ export class ChatConfigTab extends Component<{ token: string }, ChatConfigState>
     }
 
     return (
-      <div class="max-w-3xl">
-        <div class="mb-6">
-          <h1 class="text-xl font-bold text-foreground tracking-tight">Chat Configuration</h1>
-          <p class="text-[13px] text-muted-foreground/60 mt-0.5">Configure chat settings, moderation, and spam protection.</p>
+      <div class="max-w-3xl space-y-6">
+        <div>
+          <h1 class="text-2xl font-bold text-foreground tracking-tight">Chat Configuration</h1>
+          <p class="text-sm text-muted-foreground mt-1">Configure chat settings, moderation, and spam protection.</p>
         </div>
 
         {error && (
-          <Alert variant="destructive" className="mb-4">
+          <Alert variant="destructive">
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
 
         {/* System Message */}
-        <Card className="mb-4 py-4 gap-3">
-          <CardHeader>
-            <div class="flex items-center gap-2">
-              <span class="text-muted-foreground/60"><IconSend /></span>
-              <CardTitle className="text-sm">Send System Message</CardTitle>
+        <Card className="overflow-hidden">
+          <div class="flex items-center gap-3 px-6 py-4 border-b border-border bg-gradient-to-r from-primary/[0.04] to-transparent">
+            <div class="size-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+              <IconSend />
             </div>
-            <CardDescription>Send a message to all connected chat users as the system.</CardDescription>
-          </CardHeader>
-          <CardContent>
+            <div>
+              <p class="text-sm font-semibold text-foreground">Send System Message</p>
+              <p class="text-xs text-muted-foreground">Broadcast to all connected chat users.</p>
+            </div>
+          </div>
+          <CardContent className="p-6">
             <div class="flex gap-2">
               <Input
                 className="flex-1 text-xs"
@@ -222,15 +224,15 @@ export class ChatConfigTab extends Component<{ token: string }, ChatConfigState>
         </Card>
 
         {/* General Chat Settings */}
-        <Card className="mb-4 py-4 gap-3">
-          <CardHeader>
-            <div class="flex items-center gap-2">
-              <span class="text-muted-foreground/60"><IconChat /></span>
-              <CardTitle className="text-sm">General</CardTitle>
+        <Card className="overflow-hidden">
+          <div class="flex items-center gap-3 px-6 py-4 border-b border-border">
+            <div class="size-8 rounded-lg bg-muted/50 flex items-center justify-center text-muted-foreground">
+              <IconChat />
             </div>
-          </CardHeader>
-          <CardContent>
-            <div class="divide-y divide-border/30">
+            <p class="text-sm font-semibold text-foreground">General</p>
+          </div>
+          <CardContent className="p-6">
+            <div class="space-y-3">
               {this.renderToggle(
                 'Disable Chat',
                 'Completely hide the chat from your stream page.',
@@ -257,16 +259,18 @@ export class ChatConfigTab extends Component<{ token: string }, ChatConfigState>
         </Card>
 
         {/* Moderation */}
-        <Card className="mb-4 py-4 gap-3">
-          <CardHeader>
-            <div class="flex items-center gap-2">
-              <span class="text-muted-foreground/60"><IconShield /></span>
-              <CardTitle className="text-sm">Moderation</CardTitle>
+        <Card className="overflow-hidden">
+          <div class="flex items-center gap-3 px-6 py-4 border-b border-border">
+            <div class="size-8 rounded-lg bg-muted/50 flex items-center justify-center text-muted-foreground">
+              <IconShield />
             </div>
-            <CardDescription>Protect your chat from spam and unwanted content.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div class="divide-y divide-border/30">
+            <div>
+              <p class="text-sm font-semibold text-foreground">Moderation</p>
+              <p class="text-xs text-muted-foreground">Protect your chat from spam and unwanted content.</p>
+            </div>
+          </div>
+          <CardContent className="p-6">
+            <div class="space-y-3">
               {this.renderToggle(
                 'Established User Mode',
                 'Only allow users who have been registered for a while to chat. New users will need to wait before they can send messages.',
@@ -293,14 +297,14 @@ export class ChatConfigTab extends Component<{ token: string }, ChatConfigState>
         </Card>
 
         {/* Usernames */}
-        <Card className="mb-4 py-4 gap-3">
-          <CardHeader>
-            <div class="flex items-center gap-2">
-              <span class="text-muted-foreground/60"><IconUsers /></span>
-              <CardTitle className="text-sm">Usernames</CardTitle>
+        <Card className="overflow-hidden">
+          <div class="flex items-center gap-3 px-6 py-4 border-b border-border">
+            <div class="size-8 rounded-lg bg-muted/50 flex items-center justify-center text-muted-foreground">
+              <IconUsers />
             </div>
-          </CardHeader>
-          <CardContent>
+            <p class="text-sm font-semibold text-foreground">Usernames</p>
+          </div>
+          <CardContent className="p-6">
             <div class="space-y-5">
               <div class="space-y-2">
                 <Label>Forbidden Usernames</Label>

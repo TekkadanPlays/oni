@@ -110,30 +110,30 @@ export class GeneralConfigTab extends Component<{ token: string }, GeneralConfig
     }
 
     return (
-      <div class="max-w-3xl">
-        <div class="mb-6">
-          <h1 class="text-xl font-bold text-foreground tracking-tight">General Configuration</h1>
-          <p class="text-[13px] text-muted-foreground/60 mt-0.5">Configure your server's public-facing information.</p>
+      <div class="max-w-3xl space-y-6">
+        <div>
+          <h1 class="text-2xl font-bold text-foreground tracking-tight">General Configuration</h1>
+          <p class="text-sm text-muted-foreground mt-1">Configure your server's public-facing information.</p>
         </div>
 
         {error && (
-          <Alert variant="destructive" className="mb-4">
+          <Alert variant="destructive">
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
         {success && (
-          <Alert className="mb-4">
+          <Alert>
             <AlertDescription className="text-success">{success}</AlertDescription>
           </Alert>
         )}
 
         {/* Instance Details */}
-        <Card className="mb-4 py-4 gap-3">
-          <CardHeader>
-            <CardTitle className="text-sm">Instance Details</CardTitle>
-            <CardDescription>Basic information about your streaming server.</CardDescription>
-          </CardHeader>
-          <CardContent>
+        <Card className="overflow-hidden">
+          <div class="px-6 py-4 border-b border-border">
+            <p class="text-sm font-semibold text-foreground">Instance Details</p>
+            <p class="text-xs text-muted-foreground mt-0.5">Basic information about your streaming server.</p>
+          </div>
+          <CardContent className="p-6">
             <div class="space-y-4">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="space-y-1.5">
@@ -184,12 +184,12 @@ export class GeneralConfigTab extends Component<{ token: string }, GeneralConfig
         </Card>
 
         {/* Appearance */}
-        <Card className="mb-4 py-4 gap-3">
-          <CardHeader>
-            <CardTitle className="text-sm">Appearance</CardTitle>
-            <CardDescription>Customize what viewers see when your stream is offline.</CardDescription>
-          </CardHeader>
-          <CardContent>
+        <Card className="overflow-hidden">
+          <div class="px-6 py-4 border-b border-border">
+            <p class="text-sm font-semibold text-foreground">Appearance</p>
+            <p class="text-xs text-muted-foreground mt-0.5">Customize what viewers see when your stream is offline.</p>
+          </div>
+          <CardContent className="p-6">
             <div class="space-y-1.5">
               <Label>Offline Message</Label>
               <Textarea
@@ -204,12 +204,12 @@ export class GeneralConfigTab extends Component<{ token: string }, GeneralConfig
         </Card>
 
         {/* Content Settings */}
-        <Card className="mb-4 py-4 gap-3">
-          <CardHeader>
-            <CardTitle className="text-sm">Content Settings</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div class="flex items-center justify-between">
+        <Card className="overflow-hidden">
+          <div class="px-6 py-4 border-b border-border">
+            <p class="text-sm font-semibold text-foreground">Content Settings</p>
+          </div>
+          <CardContent className="p-6">
+            <div class="flex items-center justify-between rounded-xl border border-border bg-muted/20 p-4">
               <div>
                 <p class="text-sm text-foreground font-medium">NSFW Content</p>
                 <p class="text-[11px] text-muted-foreground">Mark your stream as containing adult content.</p>
@@ -223,10 +223,11 @@ export class GeneralConfigTab extends Component<{ token: string }, GeneralConfig
         </Card>
 
         {/* Save */}
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-4 pt-2 pb-8">
           <Button
             onClick={this.handleSave}
             disabled={saving}
+            className="px-8"
           >
             {saving ? 'Saving...' : 'Save Configuration'}
           </Button>

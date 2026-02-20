@@ -172,8 +172,8 @@ export class AccessTokensTab extends Component<{ token: string }, AccessTokensTa
       <div class="max-w-3xl">
         <div class="flex items-center justify-between mb-6">
           <div>
-            <h1 class="text-xl font-bold text-foreground tracking-tight">Access Tokens</h1>
-            <p class="text-[13px] text-muted-foreground/60 mt-0.5">Manage API access tokens for integrations and external tools.</p>
+            <h1 class="text-2xl font-bold text-foreground tracking-tight">Access Tokens</h1>
+            <p class="text-sm text-muted-foreground mt-1">Manage API access tokens for integrations and external tools.</p>
           </div>
           <Button
             variant={showCreate ? 'outline' : 'secondary'}
@@ -221,12 +221,12 @@ export class AccessTokensTab extends Component<{ token: string }, AccessTokensTa
 
         {/* Create form */}
         {showCreate && (
-          <Card className="mb-4 py-4 gap-3">
-            <CardHeader>
-              <CardTitle className="text-sm">Create Access Token</CardTitle>
-              <CardDescription>Create a new token for API access or integrations.</CardDescription>
-            </CardHeader>
-            <CardContent>
+          <Card className="mb-4 overflow-hidden">
+            <div class="px-6 py-4 border-b border-border">
+              <p class="text-sm font-semibold text-foreground">Create Access Token</p>
+              <p class="text-xs text-muted-foreground mt-0.5">Create a new token for API access or integrations.</p>
+            </div>
+            <CardContent className="p-6">
               <div class="space-y-3">
                 <div class="space-y-1.5">
                   <Label>Token Name</Label>
@@ -251,8 +251,8 @@ export class AccessTokensTab extends Component<{ token: string }, AccessTokensTa
 
         {/* Token list */}
         {tokens.length === 0 ? (
-          <Card className="py-8 gap-0">
-            <CardContent>
+          <Card className="overflow-hidden py-8">
+            <CardContent className="px-6">
               <div class="flex flex-col items-center text-center">
                 <div class="size-14 rounded-full bg-muted/30 flex items-center justify-center mb-3">
                   <IconKey />
@@ -271,8 +271,8 @@ export class AccessTokensTab extends Component<{ token: string }, AccessTokensTa
               const isConfirmingDelete = confirmDelete === token.accessToken;
 
               return (
-                <Card key={token.accessToken} className="py-3 gap-2">
-                  <CardContent>
+                <Card key={token.accessToken} className="overflow-hidden">
+                  <CardContent className="p-5">
                     <div class="flex items-start justify-between gap-3">
                       <div class="min-w-0 flex-1">
                         <div class="flex items-center gap-2 mb-1">
@@ -350,8 +350,8 @@ export class AccessTokensTab extends Component<{ token: string }, AccessTokensTa
         )}
 
         {/* Info */}
-        <div class="mt-6 rounded-lg border border-border/30 bg-muted/10 p-4">
-          <p class="text-[11px] text-muted-foreground/60 leading-relaxed">
+        <div class="mt-6 rounded-xl border border-border bg-muted/20 p-5">
+          <p class="text-xs text-muted-foreground leading-relaxed">
             Access tokens allow external applications to interact with your Oni server's API.
             Tokens with admin access can modify server configuration. Keep your tokens secure and
             revoke any that are no longer needed.

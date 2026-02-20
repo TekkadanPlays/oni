@@ -203,37 +203,42 @@ export class VideoConfigTab extends Component<{ token: string }, VideoConfigStat
         : `${variant.scaledWidth}×${variant.scaledHeight}`;
 
     return (
-      <Card key={index} className="py-4 gap-3">
-        <CardHeader>
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <CardTitle className="text-sm">
-                Output #{index + 1}
-              </CardTitle>
-              <Badge variant="secondary" className="text-[10px]">{resLabel}</Badge>
-              {isPassthrough && (
-                <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">Passthrough</Badge>
-              )}
+      <Card key={index} className="overflow-hidden">
+        {/* Variant header with gradient accent */}
+        <div class="flex items-center justify-between px-6 py-4 border-b border-border bg-gradient-to-r from-primary/[0.04] to-transparent">
+          <div class="flex items-center gap-3">
+            <div class="size-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+              <IconVideo />
             </div>
-            {this.state.variants.length > 1 && (
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                onClick={() => this.removeVariant(index)}
-              >
-                <IconTrash />
-              </Button>
-            )}
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-semibold text-foreground">Output #{index + 1}</span>
+                <Badge variant="secondary" className="text-[10px]">{resLabel}</Badge>
+                {isPassthrough && (
+                  <Badge variant="outline" className="text-[10px] text-primary border-primary/30">Passthrough</Badge>
+                )}
+              </div>
+            </div>
           </div>
-        </CardHeader>
-        <CardContent>
-          <div class="space-y-5">
+          {this.state.variants.length > 1 && (
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="text-destructive/60 hover:text-destructive hover:bg-destructive/10"
+              onClick={() => this.removeVariant(index)}
+            >
+              <IconTrash />
+            </Button>
+          )}
+        </div>
+
+        <CardContent className="p-6">
+          <div class="space-y-6">
             {/* Video passthrough toggle */}
-            <div class="flex items-center justify-between">
-              <div>
+            <div class="flex items-center justify-between rounded-xl border border-border bg-muted/20 p-4">
+              <div class="pr-4">
                 <p class="text-sm font-medium text-foreground">Video Passthrough</p>
-                <p class="text-[11px] text-muted-foreground">Re-use the inbound video stream without re-encoding. Lowest CPU usage.</p>
+                <p class="text-xs text-muted-foreground mt-0.5">Re-use the inbound stream without re-encoding. Lowest CPU.</p>
               </div>
               <Switch
                 checked={variant.videoPassthrough}
@@ -243,23 +248,16 @@ export class VideoConfigTab extends Component<{ token: string }, VideoConfigStat
 
             {!variant.videoPassthrough && (
               <>
-                <Separator />
-
                 {/* Resolution */}
-                <div class="space-y-2">
-                  <Label>Resolution</Label>
+                <div class="space-y-3">
+                  <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Resolution</Label>
                   <div class="flex flex-wrap gap-2">
                     {COMMON_RESOLUTIONS.map((res) => {
                       const isActive = variant.scaledWidth === res.width && variant.scaledHeight === res.height;
                       return (
                         <button
                           key={res.label}
-                          class={cn(
-                            'px-3 py-1.5 rounded-md text-xs font-medium transition-colors border',
-                            isActive
-                              ? 'bg-primary/15 text-primary border-primary/30'
-                              : 'bg-background text-muted-foreground border-border/50 hover:bg-accent hover:text-foreground'
-                          )}
+                          class={cn('pill-btn px-4 py-2 rounded-lg text-xs font-medium cursor-pointer', isActive && 'active')}
                           onClick={() => this.updateVariant(index, { scaledWidth: res.width, scaledHeight: res.height })}
                         >
                           {res.label}
@@ -268,21 +266,21 @@ export class VideoConfigTab extends Component<{ token: string }, VideoConfigStat
                     })}
                   </div>
                   {variant.scaledWidth > 0 && (
-                    <div class="flex gap-3 mt-2">
-                      <div class="space-y-1">
-                        <Label className="text-[11px]">Width</Label>
+                    <div class="flex gap-3 mt-1">
+                      <div class="space-y-1.5">
+                        <Label className="text-[11px] text-muted-foreground">Width</Label>
                         <Input
                           type="number"
-                          className="h-8 w-24 text-xs"
+                          className="h-9 w-28 text-xs tabular-nums"
                           value={String(variant.scaledWidth)}
                           onInput={(e: Event) => this.updateVariant(index, { scaledWidth: parseInt((e.target as HTMLInputElement).value) || 0 })}
                         />
                       </div>
-                      <div class="space-y-1">
-                        <Label className="text-[11px]">Height</Label>
+                      <div class="space-y-1.5">
+                        <Label className="text-[11px] text-muted-foreground">Height</Label>
                         <Input
                           type="number"
-                          className="h-8 w-24 text-xs"
+                          className="h-9 w-28 text-xs tabular-nums"
                           value={String(variant.scaledHeight)}
                           onInput={(e: Event) => this.updateVariant(index, { scaledHeight: parseInt((e.target as HTMLInputElement).value) || 0 })}
                         />
@@ -291,11 +289,13 @@ export class VideoConfigTab extends Component<{ token: string }, VideoConfigStat
                   )}
                 </div>
 
+                <div class="section-divider" />
+
                 {/* Video Bitrate */}
-                <div class="space-y-2">
+                <div class="space-y-3">
                   <div class="flex items-center justify-between">
-                    <Label>Video Bitrate</Label>
-                    <span class="text-xs font-mono text-muted-foreground">{variant.videoBitrate} kbps</span>
+                    <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Video Bitrate</Label>
+                    <Badge variant="outline" className="tabular-nums font-mono text-xs">{variant.videoBitrate} kbps</Badge>
                   </div>
                   <input
                     type="range"
@@ -303,30 +303,24 @@ export class VideoConfigTab extends Component<{ token: string }, VideoConfigStat
                     max="6000"
                     step="100"
                     value={String(variant.videoBitrate)}
-                    class="w-full accent-primary"
                     onInput={(e: Event) => this.updateVariant(index, { videoBitrate: parseInt((e.target as HTMLInputElement).value) })}
                   />
-                  <div class="flex justify-between text-[10px] text-muted-foreground/50">
+                  <div class="flex justify-between text-[10px] text-muted-foreground/40 px-1">
                     <span>200 kbps</span>
                     <span>6000 kbps</span>
                   </div>
                 </div>
 
                 {/* Framerate */}
-                <div class="space-y-2">
-                  <Label>Framerate</Label>
+                <div class="space-y-3">
+                  <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Framerate</Label>
                   <div class="flex flex-wrap gap-2">
                     {[24, 30, 60].map((fps) => {
                       const isActive = variant.framerate === fps;
                       return (
                         <button
                           key={fps}
-                          class={cn(
-                            'px-3 py-1.5 rounded-md text-xs font-medium transition-colors border',
-                            isActive
-                              ? 'bg-primary/15 text-primary border-primary/30'
-                              : 'bg-background text-muted-foreground border-border/50 hover:bg-accent hover:text-foreground'
-                          )}
+                          class={cn('pill-btn px-4 py-2 rounded-lg text-xs font-medium cursor-pointer', isActive && 'active')}
                           onClick={() => this.updateVariant(index, { framerate: fps })}
                         >
                           {fps} fps
@@ -335,7 +329,7 @@ export class VideoConfigTab extends Component<{ token: string }, VideoConfigStat
                     })}
                     <Input
                       type="number"
-                      className="h-8 w-20 text-xs"
+                      className="h-9 w-24 text-xs"
                       placeholder="Custom"
                       value={[24, 30, 60].includes(variant.framerate) ? '' : String(variant.framerate)}
                       onInput={(e: Event) => {
@@ -346,25 +340,22 @@ export class VideoConfigTab extends Component<{ token: string }, VideoConfigStat
                   </div>
                 </div>
 
+                <div class="section-divider" />
+
                 {/* CPU Usage Level */}
-                <div class="space-y-2">
-                  <Label>Encoding Speed</Label>
-                  <div class="space-y-1">
+                <div class="space-y-3">
+                  <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Encoding Speed</Label>
+                  <div class="grid grid-cols-1 sm:grid-cols-5 gap-2">
                     {CPU_USAGE_LEVELS.map((level) => {
                       const isActive = variant.cpuUsageLevel === level.value;
                       return (
                         <button
                           key={level.value}
-                          class={cn(
-                            'w-full flex items-center justify-between px-3 py-2 rounded-md text-xs transition-colors border',
-                            isActive
-                              ? 'bg-primary/10 text-primary border-primary/30'
-                              : 'bg-background text-muted-foreground border-border/30 hover:bg-accent hover:text-foreground'
-                          )}
+                          class={cn('radio-card rounded-lg px-3 py-3 text-center cursor-pointer', isActive && 'active')}
                           onClick={() => this.updateVariant(index, { cpuUsageLevel: level.value })}
                         >
-                          <span class="font-medium">{level.label}</span>
-                          <span class="text-[10px] text-muted-foreground">{level.description}</span>
+                          <p class={cn('text-xs font-semibold', isActive ? 'text-primary' : 'text-foreground')}>{level.label}</p>
+                          <p class="text-[10px] text-muted-foreground mt-0.5 leading-tight">{level.description.split(',')[0]}</p>
                         </button>
                       );
                     })}
@@ -373,13 +364,13 @@ export class VideoConfigTab extends Component<{ token: string }, VideoConfigStat
               </>
             )}
 
-            <Separator />
+            <div class="section-divider" />
 
             {/* Audio passthrough toggle */}
-            <div class="flex items-center justify-between">
-              <div>
+            <div class="flex items-center justify-between rounded-xl border border-border bg-muted/20 p-4">
+              <div class="pr-4">
                 <p class="text-sm font-medium text-foreground">Audio Passthrough</p>
-                <p class="text-[11px] text-muted-foreground">Re-use the inbound audio stream without re-encoding.</p>
+                <p class="text-xs text-muted-foreground mt-0.5">Re-use the inbound audio stream without re-encoding.</p>
               </div>
               <Switch
                 checked={variant.audioPassthrough}
@@ -388,10 +379,10 @@ export class VideoConfigTab extends Component<{ token: string }, VideoConfigStat
             </div>
 
             {!variant.audioPassthrough && (
-              <div class="space-y-2">
+              <div class="space-y-3">
                 <div class="flex items-center justify-between">
-                  <Label>Audio Bitrate</Label>
-                  <span class="text-xs font-mono text-muted-foreground">{variant.audioBitrate} kbps</span>
+                  <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Audio Bitrate</Label>
+                  <Badge variant="outline" className="tabular-nums font-mono text-xs">{variant.audioBitrate} kbps</Badge>
                 </div>
                 <input
                   type="range"
@@ -399,10 +390,9 @@ export class VideoConfigTab extends Component<{ token: string }, VideoConfigStat
                   max="320"
                   step="16"
                   value={String(variant.audioBitrate)}
-                  class="w-full accent-primary"
                   onInput={(e: Event) => this.updateVariant(index, { audioBitrate: parseInt((e.target as HTMLInputElement).value) })}
                 />
-                <div class="flex justify-between text-[10px] text-muted-foreground/50">
+                <div class="flex justify-between text-[10px] text-muted-foreground/40 px-1">
                   <span>64 kbps</span>
                   <span>320 kbps</span>
                 </div>
@@ -429,126 +419,122 @@ export class VideoConfigTab extends Component<{ token: string }, VideoConfigStat
     }
 
     return (
-      <div class="max-w-3xl">
-        <div class="mb-6">
-          <h1 class="text-xl font-bold text-foreground tracking-tight">Video Configuration</h1>
-          <p class="text-[13px] text-muted-foreground/60 mt-0.5">Configure video output quality, latency, and stream key.</p>
+      <div class="max-w-3xl space-y-6">
+        {/* Page header */}
+        <div>
+          <h1 class="text-2xl font-bold text-foreground tracking-tight">Video Configuration</h1>
+          <p class="text-sm text-muted-foreground mt-1">Configure video output quality, latency, and stream key.</p>
         </div>
 
         {error && (
-          <Alert variant="destructive" className="mb-4">
+          <Alert variant="destructive">
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
 
         {/* Stream Key */}
-        <Card className="mb-4 py-4 gap-3">
-          <CardHeader>
-            <div class="flex items-center gap-2">
-              <span class="text-muted-foreground/60"><IconKey /></span>
-              <CardTitle className="text-sm">Stream Key</CardTitle>
+        <Card className="overflow-hidden">
+          <div class="flex items-center gap-3 px-6 py-4 border-b border-border bg-gradient-to-r from-primary/[0.04] to-transparent">
+            <div class="size-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+              <IconKey />
             </div>
-            <CardDescription>Your stream key is used to authenticate with your broadcasting software.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div class="space-y-3">
-              <div class="flex items-center gap-2">
-                <div class="flex-1 relative">
-                  <Input
-                    type={showStreamKey ? 'text' : 'password'}
-                    value={streamKey}
-                    readOnly
-                    className="pr-20 font-mono text-xs"
-                  />
-                  <div class="absolute right-1 top-1/2 -translate-y-1/2 flex gap-0.5">
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      className="size-7"
-                      onClick={() => this.setState({ showStreamKey: !showStreamKey })}
-                    >
-                      {showStreamKey ? <IconEyeOff /> : <IconEye />}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      className="size-7"
-                      onClick={() => this.copyToClipboard(streamKey)}
-                    >
-                      <IconCopy />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              <div class="rounded-lg border border-border/40 bg-muted/20 p-3">
-                <p class="text-[11px] text-muted-foreground mb-2 font-medium">RTMP URL for your streaming software:</p>
-                <div class="flex items-center gap-2">
-                  <code class="text-xs text-foreground font-mono bg-background px-2 py-1 rounded flex-1 truncate">
-                    rtmp://your-server:{rtmpPort}/live
-                  </code>
+            <div>
+              <p class="text-sm font-semibold text-foreground">Stream Key</p>
+              <p class="text-xs text-muted-foreground">Authenticate with your broadcasting software.</p>
+            </div>
+          </div>
+          <CardContent className="p-6 space-y-4">
+            <div class="flex items-center gap-2">
+              <div class="flex-1 relative">
+                <Input
+                  type={showStreamKey ? 'text' : 'password'}
+                  value={streamKey}
+                  readOnly
+                  className="pr-20 font-mono text-xs"
+                />
+                <div class="absolute right-1 top-1/2 -translate-y-1/2 flex gap-0.5">
                   <Button
                     variant="ghost"
                     size="icon-sm"
-                    className="size-7 shrink-0"
-                    onClick={() => this.copyToClipboard(`rtmp://your-server:${rtmpPort}/live`)}
+                    className="size-7"
+                    onClick={() => this.setState({ showStreamKey: !showStreamKey })}
+                  >
+                    {showStreamKey ? <IconEyeOff /> : <IconEye />}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    className="size-7"
+                    onClick={() => this.copyToClipboard(streamKey)}
                   >
                     <IconCopy />
                   </Button>
                 </div>
               </div>
+            </div>
 
-              <Separator />
+            <div class="rounded-xl border border-border bg-muted/30 p-4">
+              <p class="text-[11px] text-muted-foreground mb-2 font-semibold uppercase tracking-wider">RTMP URL</p>
+              <div class="flex items-center gap-2">
+                <code class="text-xs text-foreground font-mono bg-background px-3 py-1.5 rounded-lg border border-border flex-1 truncate">
+                  rtmp://your-server:{rtmpPort}/live
+                </code>
+                <Button
+                  variant="outline"
+                  size="icon-sm"
+                  className="shrink-0"
+                  onClick={() => this.copyToClipboard(`rtmp://your-server:${rtmpPort}/live`)}
+                >
+                  <IconCopy />
+                </Button>
+              </div>
+            </div>
 
-              <div class="space-y-1.5">
-                <Label className="text-[11px]">Change Stream Key</Label>
-                <div class="flex gap-2">
-                  <Input
-                    type="text"
-                    className="flex-1 text-xs"
-                    placeholder="Enter new stream key"
-                    value={newStreamKey}
-                    onInput={(e: Event) => this.setState({ newStreamKey: (e.target as HTMLInputElement).value })}
-                  />
-                  <Button size="sm" onClick={this.handleStreamKeyChange} disabled={!newStreamKey.trim()}>
-                    Update
-                  </Button>
-                </div>
+            <div class="section-divider" />
+
+            <div class="space-y-2">
+              <Label className="text-xs font-semibold text-muted-foreground">Change Stream Key</Label>
+              <div class="flex gap-2">
+                <Input
+                  type="text"
+                  className="flex-1 text-xs"
+                  placeholder="Enter new stream key"
+                  value={newStreamKey}
+                  onInput={(e: Event) => this.setState({ newStreamKey: (e.target as HTMLInputElement).value })}
+                />
+                <Button size="sm" onClick={this.handleStreamKeyChange} disabled={!newStreamKey.trim()}>
+                  Update
+                </Button>
               </div>
             </div>
           </CardContent>
         </Card>
 
         {/* Latency */}
-        <Card className="mb-4 py-4 gap-3">
-          <CardHeader>
-            <CardTitle className="text-sm">Latency</CardTitle>
-            <CardDescription>
+        <Card className="overflow-hidden">
+          <div class="px-6 py-4 border-b border-border">
+            <p class="text-sm font-semibold text-foreground">Latency</p>
+            <p class="text-xs text-muted-foreground mt-0.5">
               Lower latency is better for interactive streams. Higher latency produces better video quality.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div class="space-y-1">
+            </p>
+          </div>
+          <CardContent className="p-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {LATENCY_LEVELS.map((level) => {
                 const isActive = latencyLevel === level.value;
                 return (
                   <button
                     key={level.value}
-                    class={cn(
-                      'w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors border',
-                      isActive
-                        ? 'bg-primary/10 text-primary border-primary/30'
-                        : 'bg-background text-foreground border-border/30 hover:bg-accent'
-                    )}
+                    class={cn('radio-card rounded-xl px-4 py-4 text-left cursor-pointer', isActive && 'active')}
                     onClick={() => this.setState({ latencyLevel: level.value })}
                   >
-                    <div class="text-left">
-                      <p class="text-sm font-medium">{level.label}</p>
-                      <p class="text-[11px] text-muted-foreground">{level.description}</p>
+                    <div class="flex items-center justify-between mb-1">
+                      <p class={cn('text-sm font-semibold', isActive ? 'text-primary' : 'text-foreground')}>{level.label}</p>
+                      {isActive && (
+                        <span class="size-2.5 rounded-full bg-primary ring-2 ring-primary/30 shrink-0" />
+                      )}
                     </div>
-                    {isActive && (
-                      <span class="size-2 rounded-full bg-primary shrink-0" />
-                    )}
+                    <p class="text-xs text-muted-foreground leading-relaxed">{level.description}</p>
                   </button>
                 );
               })}
@@ -557,27 +543,27 @@ export class VideoConfigTab extends Component<{ token: string }, VideoConfigStat
         </Card>
 
         {/* Output Variants */}
-        <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center justify-between">
           <div>
-            <h2 class="text-sm font-semibold text-foreground">Output Variants</h2>
-            <p class="text-[11px] text-muted-foreground/60">Each variant creates a separate quality option for viewers.</p>
+            <h2 class="text-lg font-semibold text-foreground">Output Variants</h2>
+            <p class="text-xs text-muted-foreground mt-0.5">Each variant creates a separate quality option for viewers.</p>
           </div>
-          <Button variant="secondary" size="sm" onClick={this.addVariant}>
+          <Button variant="outline" size="sm" onClick={this.addVariant} className="gap-1.5">
             <IconPlus />
             Add Variant
           </Button>
         </div>
 
-        <div class="space-y-4 mb-6">
+        <div class="space-y-4">
           {variants.map((variant, i) => this.renderVariantCard(variant, i))}
         </div>
 
         {/* Save */}
-        <div class="flex items-center gap-3 pb-8">
-          <Button onClick={this.handleSave} disabled={saving}>
+        <div class="flex items-center gap-4 pt-2 pb-8">
+          <Button onClick={this.handleSave} disabled={saving} className="px-8">
             {saving ? 'Saving...' : 'Save Video Configuration'}
           </Button>
-          <p class="text-[11px] text-muted-foreground">Changes take effect on next stream start.</p>
+          <p class="text-xs text-muted-foreground">Changes take effect on next stream start.</p>
         </div>
       </div>
     );

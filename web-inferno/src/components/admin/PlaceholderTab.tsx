@@ -19,12 +19,12 @@ export class PlaceholderTab extends Component<PlaceholderTabProps> {
     return (
       <div>
         <div class="mb-6">
-          <h1 class="text-xl font-bold text-foreground tracking-tight">{title}</h1>
-          <p class="text-[13px] text-muted-foreground/60 mt-0.5">{description}</p>
+          <h1 class="text-2xl font-bold text-foreground tracking-tight">{title}</h1>
+          <p class="text-sm text-muted-foreground mt-1">{description}</p>
         </div>
 
-        <Card className="py-8 gap-0">
-          <CardContent>
+        <Card className="overflow-hidden py-8">
+          <CardContent className="px-6">
             <div class="flex flex-col items-center text-center">
               <div class="size-14 rounded-full bg-muted/30 flex items-center justify-center mb-3">
                 <IconConstruction />

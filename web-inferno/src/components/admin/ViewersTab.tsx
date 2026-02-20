@@ -123,8 +123,8 @@ export class ViewersTab extends Component<{ token: string }, ViewersTabState> {
       <div>
         <div class="flex items-center justify-between mb-6">
           <div>
-            <h1 class="text-xl font-bold text-foreground tracking-tight">Viewers</h1>
-            <p class="text-[13px] text-muted-foreground/60 mt-0.5">Connected viewers and chat participants.</p>
+            <h1 class="text-2xl font-bold text-foreground tracking-tight">Viewers</h1>
+            <p class="text-sm text-muted-foreground mt-1">Connected viewers and chat participants.</p>
           </div>
           <Button variant="secondary" size="sm" onClick={this.handleRefresh}>
             <IconRefresh />
@@ -140,34 +140,34 @@ export class ViewersTab extends Component<{ token: string }, ViewersTabState> {
 
         {/* Stats */}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
-          <div class="rounded-xl border border-border/50 p-4 flex items-center gap-3.5 bg-card/60">
-            <div class="size-10 rounded-xl flex items-center justify-center bg-blue-500/10 text-blue-400">
+          <div class="rounded-xl border border-border p-5 flex items-center gap-4 bg-card/60 border-glow">
+            <div class="size-11 rounded-xl flex items-center justify-center bg-blue-500/10 text-blue-400">
               <IconUsers />
             </div>
             <div>
-              <p class="text-[11px] text-muted-foreground/70 font-medium">Stream Viewers</p>
-              <p class="text-xl font-bold text-foreground tabular-nums">{totalViewers}</p>
+              <p class="text-xs text-muted-foreground font-medium">Stream Viewers</p>
+              <p class="text-2xl font-bold text-foreground tabular-nums">{totalViewers}</p>
             </div>
           </div>
-          <div class="rounded-xl border border-border/50 p-4 flex items-center gap-3.5 bg-card/60">
-            <div class="size-10 rounded-xl flex items-center justify-center bg-emerald-500/10 text-emerald-400">
+          <div class="rounded-xl border border-border p-5 flex items-center gap-4 bg-card/60 border-glow">
+            <div class="size-11 rounded-xl flex items-center justify-center bg-emerald-500/10 text-emerald-400">
               <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
               </svg>
             </div>
             <div>
-              <p class="text-[11px] text-muted-foreground/70 font-medium">Chat Participants</p>
-              <p class="text-xl font-bold text-foreground tabular-nums">{totalChatUsers}</p>
+              <p class="text-xs text-muted-foreground font-medium">Chat Participants</p>
+              <p class="text-2xl font-bold text-foreground tabular-nums">{totalChatUsers}</p>
             </div>
           </div>
         </div>
 
         {/* Viewer List */}
-        <Card className="py-4 gap-2 mb-4">
-          <CardHeader>
-            <CardTitle className="text-sm">Connected Viewers</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <Card className="overflow-hidden mb-4">
+          <div class="px-6 py-4 border-b border-border">
+            <p class="text-sm font-semibold text-foreground">Connected Viewers</p>
+          </div>
+          <CardContent className="p-0">
             {totalViewers === 0 ? (
               <div class="text-center py-8">
                 <div class="size-12 rounded-full bg-muted/30 flex items-center justify-center mx-auto mb-3">
@@ -225,11 +225,11 @@ export class ViewersTab extends Component<{ token: string }, ViewersTabState> {
         </Card>
 
         {/* Chat Clients */}
-        <Card className="py-4 gap-2">
-          <CardHeader>
-            <CardTitle className="text-sm">Chat Participants</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <Card className="overflow-hidden">
+          <div class="px-6 py-4 border-b border-border">
+            <p class="text-sm font-semibold text-foreground">Chat Participants</p>
+          </div>
+          <CardContent className="p-5">
             {totalChatUsers === 0 ? (
               <div class="text-center py-6">
                 <p class="text-sm text-muted-foreground">No chat participants</p>

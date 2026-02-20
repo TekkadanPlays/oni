@@ -100,13 +100,13 @@ export class OverviewTab extends Component<{ token: string }, OverviewState> {
 
   private renderStatCard(icon: any, label: string, value: string | number, accent?: string) {
     return (
-      <div class={cn('rounded-xl border border-border/50 p-4 flex items-center gap-3.5 bg-card/60 backdrop-blur-sm')}>
-        <div class={cn('size-10 rounded-xl flex items-center justify-center shrink-0', accent || 'bg-primary/10 text-primary')}>
+      <div class={cn('rounded-xl border border-border p-5 flex items-center gap-4 bg-card/60 backdrop-blur-sm border-glow')}>
+        <div class={cn('size-11 rounded-xl flex items-center justify-center shrink-0', accent || 'bg-primary/10 text-primary')}>
           {icon}
         </div>
         <div class="min-w-0">
-          <p class="text-[11px] text-muted-foreground/70 font-medium">{label}</p>
-          <p class="text-xl font-bold text-foreground truncate leading-tight tabular-nums">{value}</p>
+          <p class="text-xs text-muted-foreground font-medium">{label}</p>
+          <p class="text-2xl font-bold text-foreground truncate leading-tight tabular-nums">{value}</p>
         </div>
       </div>
     );
@@ -148,14 +148,14 @@ export class OverviewTab extends Component<{ token: string }, OverviewState> {
         {/* Stream details - 2 column grid */}
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-5">
           {/* Inbound stream */}
-          <Card className="py-4 gap-2">
-            <CardHeader>
-              <div class="flex items-center gap-2">
-                <span class="text-muted-foreground/60"><IconDownload /></span>
-                <CardTitle className="text-[13px]">Inbound Stream</CardTitle>
+          <Card className="overflow-hidden">
+            <div class="flex items-center gap-3 px-6 py-4 border-b border-border">
+              <div class="size-8 rounded-lg bg-muted/50 flex items-center justify-center text-muted-foreground">
+                <IconDownload />
               </div>
-            </CardHeader>
-            <CardContent>
+              <p class="text-sm font-semibold text-foreground">Inbound Stream</p>
+            </div>
+            <CardContent className="p-5">
               <div class="rounded-lg border border-border/40 overflow-hidden">
                 {broadcaster?.remoteAddr && (
                   <div class="flex justify-between px-3 py-2 bg-muted/20">
@@ -214,27 +214,27 @@ export class OverviewTab extends Component<{ token: string }, OverviewState> {
 
         {/* Quick start cards */}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
-          <Card className="py-4 gap-2">
-            <CardHeader>
-              <CardTitle className="text-[13px] flex items-center gap-2">
-                <span class="text-muted-foreground/60"><IconMonitor /></span>
-                Broadcasting Software
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+          <Card className="overflow-hidden border-glow">
+            <div class="flex items-center gap-3 px-6 py-4 border-b border-border">
+              <div class="size-8 rounded-lg bg-muted/50 flex items-center justify-center text-muted-foreground">
+                <IconMonitor />
+              </div>
+              <p class="text-sm font-semibold text-foreground">Broadcasting Software</p>
+            </div>
+            <CardContent className="p-5">
               <p class="text-xs text-muted-foreground/70 leading-relaxed">
                 Point your streaming software (OBS, Streamlabs, etc.) to your server's RTMP endpoint to begin broadcasting.
               </p>
             </CardContent>
           </Card>
-          <Card className="py-4 gap-2">
-            <CardHeader>
-              <CardTitle className="text-[13px] flex items-center gap-2">
-                <span class="text-muted-foreground/60"><IconUpload /></span>
-                Stream Key
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+          <Card className="overflow-hidden border-glow">
+            <div class="flex items-center gap-3 px-6 py-4 border-b border-border">
+              <div class="size-8 rounded-lg bg-muted/50 flex items-center justify-center text-muted-foreground">
+                <IconUpload />
+              </div>
+              <p class="text-sm font-semibold text-foreground">Stream Key</p>
+            </div>
+            <CardContent className="p-5">
               <p class="text-xs text-muted-foreground/70 leading-relaxed">
                 Your stream key can be found in the server configuration. Keep it secret — anyone with the key can stream to your server.
               </p>
@@ -258,11 +258,11 @@ export class OverviewTab extends Component<{ token: string }, OverviewState> {
     const diskPercent = hw.disk ? Math.round(hw.disk.percent) : 0;
 
     return (
-      <Card className="py-4 gap-2">
-        <CardHeader>
-          <CardTitle className="text-[13px]">Hardware</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <Card className="overflow-hidden">
+        <div class="px-6 py-4 border-b border-border">
+          <p class="text-sm font-semibold text-foreground">Hardware</p>
+        </div>
+        <CardContent className="p-5">
           <div class="space-y-3">
             {hw.cpu?.[0] && this.renderHardwareGauge(<IconCpu />, hw.cpu[0].modelName || 'CPU', cpuPercent, '#B63FFF')}
             {hw.memory && this.renderHardwareGauge(<IconMemory />, 'Memory', memPercent, '#2087E2')}
@@ -307,10 +307,10 @@ export class OverviewTab extends Component<{ token: string }, OverviewState> {
     return (
       <div>
         <div class="mb-6">
-          <h1 class="text-xl font-bold text-foreground tracking-tight">
+          <h1 class="text-2xl font-bold text-foreground tracking-tight">
             {online ? 'Dashboard' : 'Home'}
           </h1>
-          <p class="text-[13px] text-muted-foreground/60 mt-0.5">
+          <p class="text-sm text-muted-foreground mt-1">
             {online ? 'Your stream is live. Here\'s what\'s happening.' : 'Server overview and quick actions.'}
           </p>
         </div>
