@@ -46,8 +46,8 @@ func Start(enableVerboseLogging bool) error {
 	// Return HLS video
 	r.HandleFunc("/hls/*", handlers.HandleHLSRequest)
 
-	// The admin web app.
-	r.HandleFunc("/admin/*", middleware.RequireAdminAuth(handlers.IndexHandler))
+	// The admin web app (SPA handles auth client-side).
+	r.HandleFunc("/admin/*", handlers.IndexHandler)
 
 	// Single ActivityPub Actor
 	r.HandleFunc("/federation/user/*", middleware.RequireActivityPubOrRedirect(aphandlers.ActorHandler))
