@@ -152,15 +152,16 @@ export class App extends Component<{}, AppComponentState> {
     if (error) {
       return (
         <div class="flex items-center justify-center min-h-screen bg-background">
-          <div class="text-center p-8 max-w-sm w-full">
-            <Alert variant="destructive">
-              <AlertDescription>
-                <p class="font-semibold mb-1">Unable to connect</p>
-                <p>{error}</p>
-              </AlertDescription>
-            </Alert>
-            <Button className="mt-4" onClick={() => window.location.reload()}>
-              Retry
+          <div class="text-center p-8 max-w-sm w-full animate-fade-in">
+            <div class="size-16 rounded-2xl bg-destructive/10 flex items-center justify-center mx-auto mb-5">
+              <svg class="size-7 text-destructive" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+              </svg>
+            </div>
+            <h2 class="text-base font-semibold text-foreground mb-1.5">Unable to connect</h2>
+            <p class="text-sm text-muted-foreground/70 mb-5">{error}</p>
+            <Button onClick={() => window.location.reload()} className="glow-primary">
+              Try Again
             </Button>
           </div>
         </div>
@@ -170,9 +171,9 @@ export class App extends Component<{}, AppComponentState> {
     if (loading) {
       return (
         <div class="flex items-center justify-center min-h-screen bg-background">
-          <div class="text-center">
+          <div class="text-center animate-fade-in">
             <Spinner size="lg" className="mx-auto mb-4" />
-            <p class="text-muted-foreground text-sm">Loading...</p>
+            <p class="text-muted-foreground/50 text-xs tracking-wide uppercase">Loading stream...</p>
           </div>
         </div>
       );
@@ -183,9 +184,8 @@ export class App extends Component<{}, AppComponentState> {
     return (
       <div class="flex flex-col h-screen bg-background overflow-hidden">
         <Header />
-        {/* Main content row: scrollable column + fixed chat sidebar — like original Owncast */}
         <div class="flex flex-1 min-h-0">
-          {/* Scrollable main column */}
+          {/* Main content column */}
           <div class="flex flex-col flex-1 overflow-y-auto">
             {online ? (
               <VideoPlayer
@@ -202,13 +202,12 @@ export class App extends Component<{}, AppComponentState> {
               />
             )}
             {online && <Statusbar />}
-            {/* Spacer pushes footer to bottom when content is short */}
             <div class="flex-1" />
             <Footer />
           </div>
-          {/* Chat sidebar: full height from header to bottom of viewport */}
+          {/* Chat sidebar */}
           {showChat && (
-            <div class="w-80 shrink-0 border-l border-border/40">
+            <div class="w-[340px] shrink-0 border-l border-white/[0.06]">
               <ChatContainer />
             </div>
           )}

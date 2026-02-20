@@ -99,32 +99,32 @@ export class ChatMessageItem extends Component<Props> {
     const isAuth = message.user?.authenticated;
 
     return (
-      <div class="group px-3 py-1 hover:bg-muted/20 transition-colors">
+      <div class="group px-3.5 py-1.5 hover:bg-white/[0.02] transition-colors animate-msg-in">
         <div class="flex items-baseline gap-1.5 flex-wrap">
           <span
-            class="text-xs font-medium leading-tight"
+            class="text-[11px] font-semibold leading-tight"
             style={{ color: userColor }}
           >
             {isMod && (
               <Tooltip content="Moderator" side="top">
-                <Badge variant="default" className="text-[7px] px-1 py-0 h-3.5 mr-0.5 align-middle">MOD</Badge>
+                <span class="inline-flex items-center px-1 py-px rounded text-[7px] font-bold bg-primary/20 text-primary mr-1 align-middle uppercase tracking-wider">Mod</span>
               </Tooltip>
             )}
             {isBot && (
               <Tooltip content="Bot" side="top">
-                <Badge variant="secondary" className="text-[7px] px-1 py-0 h-3.5 mr-0.5 align-middle">BOT</Badge>
+                <span class="inline-flex items-center px-1 py-px rounded text-[7px] font-bold bg-muted text-muted-foreground mr-1 align-middle uppercase tracking-wider">Bot</span>
               </Tooltip>
             )}
             {isAuth && (
               <Tooltip content="Verified" side="top">
-                <span class="inline-flex items-center justify-center size-3 text-success text-[9px] mr-0.5 align-middle">✓</span>
+                <span class="inline-flex items-center justify-center size-3 text-success text-[8px] mr-0.5 align-middle">✓</span>
               </Tooltip>
             )}
             {message.user?.displayName}
           </span>
-          <span class="text-[10px] text-muted-foreground/40 leading-tight">{time}</span>
+          <span class="text-[9px] text-muted-foreground/25 leading-tight tabular-nums">{time}</span>
         </div>
-        <p class="text-[13px] text-foreground/90 leading-snug break-words mt-0.5">
+        <p class="text-[12.5px] text-foreground/80 leading-relaxed break-words mt-0.5">
           {message.body}
         </p>
       </div>

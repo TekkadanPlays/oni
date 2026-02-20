@@ -40,14 +40,14 @@ export class ChatRegistration extends Component<{}, ChatRegistrationState> {
     const { name, loading, error } = this.state;
 
     return (
-      <div class="p-2 border-t border-border/50 bg-card/80">
+      <div class="p-3 border-t border-white/[0.06] glass">
         <form onSubmit={this.handleSubmit}>
-          <p class="text-[11px] text-muted-foreground mb-1.5">
+          <p class="text-[11px] text-muted-foreground/50 mb-2">
             Pick a name to join the chat
           </p>
-          <div class="flex items-center gap-1.5">
+          <div class="flex items-center gap-2">
             <Input
-              className="flex-1 h-7 text-xs"
+              className="flex-1 h-8 text-xs bg-white/[0.03] border-white/[0.06] focus-visible:border-primary/40"
               placeholder="Your name..."
               value={name}
               onInput={this.handleInput}
@@ -57,13 +57,13 @@ export class ChatRegistration extends Component<{}, ChatRegistrationState> {
               type="submit"
               size="sm"
               disabled={!name.trim() || loading}
-              className="h-7"
+              className="h-8 glow-primary"
             >
               {loading ? <Spinner size="sm" className="border-primary-foreground/30 border-t-primary-foreground" /> : 'Join'}
             </Button>
           </div>
           {error && (
-            <p class="text-[10px] text-destructive mt-1">{error}</p>
+            <p class="text-[10px] text-destructive/80 mt-1.5">{error}</p>
           )}
         </form>
       </div>

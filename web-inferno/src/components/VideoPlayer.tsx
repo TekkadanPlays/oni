@@ -124,29 +124,41 @@ export class VideoPlayer extends Component<VideoPlayerProps, VideoPlayerState> {
         />
         {/* Loading overlay */}
         {isLoading && !hasError && (
-          <div class="absolute inset-0 flex items-center justify-center bg-black/80 pointer-events-none">
-            <div class="flex flex-col items-center gap-3">
-              <Spinner size="lg" />
-              <p class="text-sm text-muted-foreground">Connecting to stream...</p>
+          <div class="absolute inset-0 flex items-center justify-center bg-black/90 pointer-events-none animate-fade-in">
+            <div class="flex flex-col items-center gap-4">
+              <div class="relative">
+                <Spinner size="lg" />
+                <div class="absolute inset-0 rounded-full glow-primary" />
+              </div>
+              <div class="text-center">
+                <p class="text-sm font-medium text-foreground/80">Connecting to stream</p>
+                <p class="text-[11px] text-muted-foreground/40 mt-0.5">Please wait...</p>
+              </div>
             </div>
           </div>
         )}
         {/* Error overlay */}
         {hasError && (
-          <div class="absolute inset-0 flex items-center justify-center bg-black/80">
-            <div class="flex flex-col items-center gap-3 text-center px-6">
-              <svg class="size-10 text-destructive/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-              </svg>
-              <p class="text-sm text-muted-foreground">Unable to load stream</p>
+          <div class="absolute inset-0 flex items-center justify-center bg-black/90 animate-fade-in">
+            <div class="flex flex-col items-center gap-4 text-center px-6">
+              <div class="size-14 rounded-2xl bg-destructive/10 flex items-center justify-center">
+                <svg class="size-6 text-destructive/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm font-medium text-foreground/80">Stream unavailable</p>
+                <p class="text-[11px] text-muted-foreground/40 mt-0.5">The stream may have ended or encountered an error</p>
+              </div>
               <Button
                 size="sm"
+                className="glow-primary"
                 onClick={() => {
                   this.setState({ isLoading: true, hasError: false });
                   this.initPlayer();
                 }}
               >
-                Retry
+                Try Again
               </Button>
             </div>
           </div>
