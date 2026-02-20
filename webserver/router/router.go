@@ -59,7 +59,8 @@ func Start(enableVerboseLogging bool) error {
 	r.HandleFunc("/*", handlers.IndexHandler)
 
 	// Admin Nostr pubkey config (manual routes, not in OpenAPI spec)
-	r.Post("/api/admin/config/adminnostrpubkey", middleware.RequireAdminAuth(admin.SetAdminNostrPubkey))
+	// POST is temporarily unauthenticated for initial bootstrap setup
+	r.Post("/api/admin/config/adminnostrpubkey", admin.SetAdminNostrPubkey)
 	r.Get("/api/admin/config/adminnostrpubkey", middleware.RequireAdminAuth(admin.GetAdminNostrPubkey))
 
 	// mount the api
