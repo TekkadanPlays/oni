@@ -19,6 +19,7 @@ import (
 	"github.com/TekkadanPlays/oni/core/chat"
 	"github.com/TekkadanPlays/oni/core/data"
 	"github.com/TekkadanPlays/oni/webserver/handlers"
+	"github.com/TekkadanPlays/oni/webserver/handlers/admin"
 	"github.com/TekkadanPlays/oni/webserver/router/middleware"
 )
 
@@ -56,6 +57,10 @@ func Start(enableVerboseLogging bool) error {
 
 	// The primary web app.
 	r.HandleFunc("/*", handlers.IndexHandler)
+
+	// Admin Nostr pubkey config (manual routes, not in OpenAPI spec)
+	r.Post("/api/admin/config/adminnostrpubkey", middleware.RequireAdminAuth(admin.SetAdminNostrPubkey))
+	r.Get("/api/admin/config/adminnostrpubkey", middleware.RequireAdminAuth(admin.GetAdminNostrPubkey))
 
 	// mount the api
 	r.Mount("/api/", handlers.New().Handler())

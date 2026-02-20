@@ -234,6 +234,33 @@ func SetAdminPassword(w http.ResponseWriter, r *http.Request) {
 	webutils.WriteSimpleResponse(w, true, "changed")
 }
 
+// SetAdminNostrPubkey will set the hex Nostr pubkey authorized for admin access.
+func SetAdminNostrPubkey(w http.ResponseWriter, r *http.Request) {
+	if !requirePOST(w, r) {
+		return
+	}
+
+	configValue, success := getValueFromRequest(w, r)
+	if !success {
+		return
+	}
+
+	configRepository := configrepository.Get()
+	if err := configRepository.SetAdminNostrPubkey(configValue.Value.(string)); err != nil {
+		webutils.WriteSimpleResponse(w, false, err.Error())
+		return
+	}
+
+	webutils.WriteSimpleResponse(w, true, "changed")
+}
+
+// GetAdminNostrPubkey returns the configured admin Nostr pubkey.
+func GetAdminNostrPubkey(w http.ResponseWriter, r *http.Request) {
+	configRepository := configrepository.Get()
+	pubkey := configRepository.GetAdminNostrPubkey()
+	webutils.WriteResponse(w, map[string]string{"value": pubkey})
+}
+
 // SetLogo will handle a new logo image file being uploaded.
 func SetLogo(w http.ResponseWriter, r *http.Request) {
 	if !requirePOST(w, r) {
