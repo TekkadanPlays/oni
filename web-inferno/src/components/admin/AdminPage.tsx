@@ -4,7 +4,11 @@ import { Button, Input, Label, Card, CardHeader, CardTitle, CardDescription, Car
 import { AdminShell, AdminTab } from './AdminShell';
 import { OverviewTab } from './OverviewTab';
 import { GeneralConfigTab } from './GeneralConfigTab';
-import { PlaceholderTab } from './PlaceholderTab';
+import { VideoConfigTab } from './VideoConfigTab';
+import { ChatConfigTab } from './ChatConfigTab';
+import { ViewersTab } from './ViewersTab';
+import { LogsTab } from './LogsTab';
+import { AccessTokensTab } from './AccessTokensTab';
 import { RelayManagerTab } from './RelayManagerTab';
 import { NostrSettingsTab } from './NostrSettingsTab';
 import { getLocalStorage, setLocalStorage } from '../../utils';
@@ -69,15 +73,15 @@ export class AdminPage extends Component<{}, AdminPageState> {
       case 'general':
         return <GeneralConfigTab token={token} />;
       case 'video':
-        return <PlaceholderTab title="Video Configuration" description="Configure video output quality variants, latency, and codec settings." />;
+        return <VideoConfigTab token={token} />;
       case 'chat':
-        return <PlaceholderTab title="Chat Configuration" description="Configure chat settings, moderation, and spam protection." />;
+        return <ChatConfigTab token={token} />;
       case 'viewers':
-        return <PlaceholderTab title="Viewer Information" description="View connected viewers and their details." />;
+        return <ViewersTab token={token} />;
       case 'logs':
-        return <PlaceholderTab title="Logs" description="View server logs and warnings." />;
+        return <LogsTab token={token} />;
       case 'tokens':
-        return <PlaceholderTab title="Access Tokens" description="Manage access tokens for integrations and admin access." />;
+        return <AccessTokensTab token={token} />;
       case 'nostr':
         return <NostrSettingsTab />;
       case 'relays':

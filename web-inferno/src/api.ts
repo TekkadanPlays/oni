@@ -45,6 +45,15 @@ async function adminPost<T>(path: string, token: string, body?: unknown): Promis
   return res.json();
 }
 
+async function adminDelete<T>(path: string, token: string): Promise<T> {
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error(`DELETE ${path} failed: ${res.status}`);
+  return res.json();
+}
+
 export const api = {
   // Public endpoints
   getStatus: () => get<ServerStatus>('/status'),
@@ -74,5 +83,32 @@ export const api = {
       adminPost<unknown>('/admin/config', token, config),
     sendSystemMessage: (token: string, body: string) =>
       adminPost<unknown>('/admin/chat/send', token, { body }),
+    createAccessToken: (token: string, body: { name: string; scopes: string[] }) =>
+      adminPost<unknown>('/admin/accesstokens/create', token, body),
+    deleteAccessToken: (token: string, tokenToDelete: string) =>
+      adminPost<unknown>('/admin/accesstokens/delete', token, { token: tokenToDelete }),
+    getConnectedClients: (token: string) => adminGet<unknown>('/admin/chat/clients', token),
+    setStreamKey: (token: string, key: string) =>
+      adminPost<unknown>('/admin/config/key', token, { value: key }),
+    getLogEntries: (token: string) => adminGet<unknown>('/admin/logs', token),
+    getWarnings: (token: string) => adminGet<unknown>('/admin/logs/warnings', token),
+    updateVideoConfig: (token: string, config: unknown) =>
+      adminPost<unknown>('/admin/config/video', token, config),
+    updateChatDisabled: (token: string, disabled: boolean) =>
+      adminPost<unknown>('/admin/config/chat/disable', token, { value: disabled }),
+    updateChatJoinMessages: (token: string, enabled: boolean) =>
+      adminPost<unknown>('/admin/config/chat/joinmessagesenabled', token, { value: enabled }),
+    updateChatEstablishedMode: (token: string, enabled: boolean) =>
+      adminPost<unknown>('/admin/config/chat/establishedusermode', token, { value: enabled }),
+    updateChatSpamProtection: (token: string, enabled: boolean) =>
+      adminPost<unknown>('/admin/config/chat/spamprotectionenabled', token, { value: enabled }),
+    updateChatSlurFilter: (token: string, enabled: boolean) =>
+      adminPost<unknown>('/admin/config/chat/slurfilterenabled', token, { value: enabled }),
+    updateForbiddenUsernames: (token: string, usernames: string[]) =>
+      adminPost<unknown>('/admin/config/chat/forbiddenusernames', token, { value: usernames }),
+    updateSuggestedUsernames: (token: string, usernames: string[]) =>
+      adminPost<unknown>('/admin/config/chat/suggestedusernames', token, { value: usernames }),
+    updateHideViewerCount: (token: string, hide: boolean) =>
+      adminPost<unknown>('/admin/config/hideviewercount', token, { value: hide }),
   },
 };
