@@ -127,4 +127,6 @@ type ConfigRepository interface {
 	GetPrivateKey() string
 	SetPublicKey(key string) error
 	SetPrivateKey(key string) error
+	GetAdminNostrPubkey() string
+	SetAdminNostrPubkey(pubkey string) error
 }

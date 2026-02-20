@@ -59,4 +59,5 @@ const (
 	streamKeysKey                        = "stream_keys"
 	disableSearchIndexingKey             = "disable_search_indexing"
 	videoServingEndpointKey              = "video_serving_endpoint"
+	adminNostrPubkeyKey                  = "admin_nostr_pubkey"
 )

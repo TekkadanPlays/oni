@@ -1002,3 +1002,14 @@ func (r *SqlConfigRepository) GetVideoServingEndpoint() string {
 func (r *SqlConfigRepository) SetVideoServingEndpoint(message string) error {
 	return r.datastore.SetString(videoServingEndpointKey, message)
 }
+
+// GetAdminNostrPubkey returns the hex pubkey authorized for admin access.
+func (r *SqlConfigRepository) GetAdminNostrPubkey() string {
+	pubkey, _ := r.datastore.GetString(adminNostrPubkeyKey)
+	return pubkey
+}
+
+// SetAdminNostrPubkey sets the hex pubkey authorized for admin access.
+func (r *SqlConfigRepository) SetAdminNostrPubkey(pubkey string) error {
+	return r.datastore.SetString(adminNostrPubkeyKey, pubkey)
+}

@@ -19,18 +19,12 @@ type ExternalAccessTokenHandlerFunc func(models.ExternalAPIUser, http.ResponseWr
 // UserAccessTokenHandlerFunc is a function that is called after validing user access.
 type UserAccessTokenHandlerFunc func(models.User, http.ResponseWriter, *http.Request)
 
-// RequireAdminAuth wraps a handler requiring HTTP basic auth for it using the given
-// the stream key as the password and and a hardcoded "admin" for username.
+// RequireAdminAuth wraps a handler requiring either HTTP basic auth (stream key)
+// or a Bearer token containing a hex Nostr pubkey matching the configured admin pubkey.
 func RequireAdminAuth(handler http.HandlerFunc) http.HandlerFunc {
 	configRepository := configrepository.Get()
 	return func(w http.ResponseWriter, r *http.Request) {
-		username := "admin"
-		password := configRepository.GetAdminPassword()
-		realm := "Owncast Authenticated Request"
-
-		// Alow CORS only for localhost:3000 to support Owncast development.
-		validAdminHost := "http://localhost:3000"
-		w.Header().Set("Access-Control-Allow-Origin", validAdminHost)
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
 		w.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization")
 
@@ -40,11 +34,23 @@ func RequireAdminAuth(handler http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
+		// Try Bearer token auth first (Nostr pubkey)
+		authHeader := r.Header.Get("Authorization")
+		if strings.HasPrefix(authHeader, "Bearer ") {
+			token := authHeader[len("Bearer "):]
+			adminPubkey := configRepository.GetAdminNostrPubkey()
+			if adminPubkey != "" && len(token) == 64 && subtle.ConstantTimeCompare([]byte(token), []byte(adminPubkey)) == 1 {
+				handler(w, r)
+				return
+			}
+		}
+
+		// Fall back to HTTP Basic Auth (stream key as password)
+		username := "admin"
+		password := configRepository.GetAdminPassword()
 		user, pass, ok := r.BasicAuth()
 
-		// Failed
 		if !ok || subtle.ConstantTimeCompare([]byte(user), []byte(username)) != 1 || utils.CompareHash(password, pass) != nil {
-			w.Header().Set("WWW-Authenticate", `Basic realm="`+realm+`"`)
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			log.Debugln("Failed admin authentication")
 			return
