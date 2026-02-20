@@ -1,6 +1,6 @@
 import { Component } from 'inferno';
 import { createElement } from 'inferno-create-element';
-import { Input, Button, Spinner } from 'blazecn';
+import { Input, Button, Label, Spinner } from 'blazecn';
 import { store } from '../store';
 
 interface ChatRegistrationState {
@@ -40,14 +40,12 @@ export class ChatRegistration extends Component<{}, ChatRegistrationState> {
     const { name, loading, error } = this.state;
 
     return (
-      <div class="p-3 border-t border-white/[0.06] glass">
+      <div class="p-3 border-t border-border bg-card/60">
         <form onSubmit={this.handleSubmit}>
-          <p class="text-[11px] text-muted-foreground/50 mb-2">
-            Pick a name to join the chat
-          </p>
+          <Label className="text-muted-foreground mb-2">Pick a name to join the chat</Label>
           <div class="flex items-center gap-2">
             <Input
-              className="flex-1 h-8 text-xs bg-white/[0.03] border-white/[0.06] focus-visible:border-primary/40"
+              className="flex-1 h-9 text-sm"
               placeholder="Your name..."
               value={name}
               onInput={this.handleInput}
@@ -57,13 +55,13 @@ export class ChatRegistration extends Component<{}, ChatRegistrationState> {
               type="submit"
               size="sm"
               disabled={!name.trim() || loading}
-              className="h-8 glow-primary"
+              className="h-9 px-5"
             >
-              {loading ? <Spinner size="sm" className="border-primary-foreground/30 border-t-primary-foreground" /> : 'Join'}
+              {loading ? <Spinner size="sm" /> : 'Join'}
             </Button>
           </div>
           {error && (
-            <p class="text-[10px] text-destructive/80 mt-1.5">{error}</p>
+            <p class="text-xs text-destructive mt-2">{error}</p>
           )}
         </form>
       </div>

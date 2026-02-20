@@ -99,32 +99,34 @@ export class ChatMessageItem extends Component<Props> {
     const isAuth = message.user?.authenticated;
 
     return (
-      <div class="group px-3.5 py-1.5 hover:bg-white/[0.02] transition-colors animate-msg-in">
+      <div class="group px-4 py-2 hover:bg-accent/50 transition-colors duration-150 animate-msg-in">
         <div class="flex items-baseline gap-1.5 flex-wrap">
           <span
-            class="text-[11px] font-semibold leading-tight"
+            class="text-[12px] font-bold leading-tight"
             style={{ color: userColor }}
           >
             {isMod && (
               <Tooltip content="Moderator" side="top">
-                <span class="inline-flex items-center px-1 py-px rounded text-[7px] font-bold bg-primary/20 text-primary mr-1 align-middle uppercase tracking-wider">Mod</span>
+                <Badge className="mr-1 align-middle text-[8px] py-0 px-1.5 uppercase tracking-wider">Mod</Badge>
               </Tooltip>
             )}
             {isBot && (
               <Tooltip content="Bot" side="top">
-                <span class="inline-flex items-center px-1 py-px rounded text-[7px] font-bold bg-muted text-muted-foreground mr-1 align-middle uppercase tracking-wider">Bot</span>
+                <Badge variant="secondary" className="mr-1 align-middle text-[8px] py-0 px-1.5 uppercase tracking-wider">Bot</Badge>
               </Tooltip>
             )}
             {isAuth && (
               <Tooltip content="Verified" side="top">
-                <span class="inline-flex items-center justify-center size-3 text-success text-[8px] mr-0.5 align-middle">✓</span>
+                <span class="inline-flex items-center justify-center size-3.5 text-success mr-0.5 align-middle">
+                  <svg class="size-2.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                </span>
               </Tooltip>
             )}
             {message.user?.displayName}
           </span>
-          <span class="text-[9px] text-muted-foreground/25 leading-tight tabular-nums">{time}</span>
+          <span class="text-[10px] text-muted-foreground/40 leading-tight tabular-nums">{time}</span>
         </div>
-        <p class="text-[12.5px] text-foreground/80 leading-relaxed break-words mt-0.5">
+        <p class="text-[13px] text-foreground/90 leading-relaxed break-words mt-0.5">
           {message.body}
         </p>
       </div>

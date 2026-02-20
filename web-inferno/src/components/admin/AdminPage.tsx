@@ -131,10 +131,15 @@ export class AdminPage extends Component<{}, AdminPageState> {
 
     if (authChecking) {
       return (
-        <div class="flex items-center justify-center min-h-screen bg-background">
-          <div class="flex flex-col items-center gap-3">
-            <Spinner size="lg" />
-            <p class="text-sm text-muted-foreground">Checking authorization...</p>
+        <div class="relative flex items-center justify-center min-h-screen bg-background overflow-hidden">
+          <div class="ambient-glow" />
+          <div class="noise-overlay" />
+          <div class="relative flex flex-col items-center gap-4 animate-fade-in">
+            <div class="relative">
+              <Spinner size="lg" />
+              <div class="absolute inset-0 rounded-full blur-xl bg-primary/10" />
+            </div>
+            <p class="text-sm font-medium text-muted-foreground">Checking authorization...</p>
           </div>
         </div>
       );
@@ -142,59 +147,69 @@ export class AdminPage extends Component<{}, AdminPageState> {
 
     if (!authenticated) {
       return (
-        <div class="flex items-center justify-center min-h-screen bg-background">
-          <Card className="w-full max-w-sm py-5 gap-4">
+        <div class="relative flex items-center justify-center min-h-screen bg-background overflow-hidden">
+          <div class="ambient-glow" />
+          <div class="noise-overlay" />
+          <Card className="relative w-full max-w-sm py-6 gap-5 animate-scale-in">
             <CardHeader className="text-center">
-              <div class="mx-auto size-10 rounded-lg bg-primary/10 flex items-center justify-center mb-2">
-                <svg class="size-6 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <div class="mx-auto size-14 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-3 ring-1 ring-primary/10">
+                <svg class="size-7 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polygon points="5 3 19 12 5 21 5 3" />
                 </svg>
               </div>
-              <CardTitle>Oni Admin</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-xl font-bold">Oni Admin</CardTitle>
+              <CardDescription className="text-sm mt-1">
                 {auth.pubkey
                   ? 'Your Nostr identity is not authorized. Use the stream key instead.'
                   : 'Sign in with Nostr or enter your stream key.'}
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-5">
               {!auth.pubkey && (
-                <Button onClick={this.handleNostrLogin} className="w-full" variant="outline" disabled={auth.isLoading}>
-                  {auth.isLoading ? <Spinner size="sm" className="mr-2" /> : null}
+                <Button onClick={this.handleNostrLogin} className="w-full h-10 gap-2 font-semibold" variant="outline" disabled={auth.isLoading}>
+                  {auth.isLoading ? <Spinner size="sm" className="mr-1" /> : (
+                    <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+                    </svg>
+                  )}
                   Sign in with Nostr
                 </Button>
               )}
               <div class="relative">
                 <div class="absolute inset-0 flex items-center">
-                  <span class="w-full border-t border-border/50" />
+                  <span class="w-full border-t border-border" />
                 </div>
                 <div class="relative flex justify-center text-xs uppercase">
-                  <span class="bg-card px-2 text-muted-foreground">or stream key</span>
+                  <span class="bg-card px-3 text-muted-foreground/50 font-medium tracking-wider">or stream key</span>
                 </div>
               </div>
               <form onSubmit={this.handleStreamKeyLogin} class="space-y-3">
-                <div class="space-y-1.5">
-                  <Label>Stream Key</Label>
+                <div class="space-y-2">
+                  <Label className="text-xs font-semibold text-muted-foreground/70">Stream Key</Label>
                   <Input
                     type="password"
                     value={streamKeyInput}
                     onInput={(e: Event) => this.setState({ streamKeyInput: (e.target as HTMLInputElement).value })}
                     placeholder="Enter your stream key"
+                    className="h-10"
                   />
                 </div>
                 {authError && (
-                  <Alert variant="destructive" className="py-2">
+                  <Alert variant="destructive" className="py-2.5 border-destructive/20 bg-destructive/5">
                     <AlertDescription className="text-xs">{authError}</AlertDescription>
                   </Alert>
                 )}
-                <Button type="submit" className="w-full">
+                <Button type="submit" className="w-full h-10 font-semibold">
                   Sign In
                 </Button>
               </form>
             </CardContent>
-            <CardFooter className="justify-center">
-              <a href="/" class="text-xs text-muted-foreground hover:text-foreground transition-colors">
-                ← Back to stream
+            <CardFooter className="justify-center pt-2">
+              <a href="/" class="text-xs font-medium text-muted-foreground/50 hover:text-foreground transition-colors flex items-center gap-1.5">
+                <svg class="size-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                </svg>
+                Back to stream
               </a>
             </CardFooter>
           </Card>

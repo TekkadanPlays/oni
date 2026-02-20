@@ -38,11 +38,11 @@ export class ChatInput extends Component<ChatInputProps, ChatInputState> {
 
     return (
       <form
-        class="flex items-center gap-2 p-2.5 border-t border-white/[0.06] glass"
+        class="flex items-center gap-2 p-3 border-t border-border bg-card/60"
         onSubmit={this.handleSubmit}
       >
         <Input
-          className="flex-1 h-8 text-xs bg-white/[0.03] border-white/[0.06] focus-visible:border-primary/40"
+          className="flex-1 h-9 text-sm"
           placeholder="Send a message..."
           value={this.state.value}
           onInput={this.handleInput}
@@ -52,9 +52,8 @@ export class ChatInput extends Component<ChatInputProps, ChatInputState> {
           type="submit"
           size="icon-sm"
           disabled={!hasValue}
-          className={hasValue ? 'size-8 shrink-0 glow-primary' : 'size-8 shrink-0'}
         >
-          <svg class="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
           </svg>
         </Button>

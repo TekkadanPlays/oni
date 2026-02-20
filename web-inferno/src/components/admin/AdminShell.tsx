@@ -150,31 +150,34 @@ export class AdminShell extends Component<AdminShellProps, AdminShellState> {
     const { online, name, streamTitle, viewerCount } = this.state;
 
     return (
-      <div class="flex h-screen bg-background overflow-hidden">
+      <div class="relative flex h-screen bg-background overflow-hidden">
+        <div class="noise-overlay z-0" />
         {/* Sidebar */}
-        <aside class="w-56 shrink-0 border-r border-border/60 bg-card/80 backdrop-blur-sm flex flex-col">
+        <aside class="relative z-10 w-60 shrink-0 border-r border-border bg-card/60 flex flex-col">
           {/* Brand */}
-          <div class="px-4 py-4 border-b border-border/40">
+          <div class="px-4 py-5 border-b border-border">
             <div class="flex items-center gap-3">
-              <div class="size-9 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center ring-1 ring-primary/10">
-                <svg class="size-5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <polygon points="5 3 19 12 5 21 5 3" />
-                </svg>
+              <div class="rounded-xl p-[2px] bg-gradient-to-br from-primary/30 to-primary/10">
+                <div class="size-9 rounded-[10px] bg-background flex items-center justify-center">
+                  <svg class="size-5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polygon points="5 3 19 12 5 21 5 3" />
+                  </svg>
+                </div>
               </div>
               <div class="min-w-0">
-                <p class="text-[13px] font-bold text-foreground leading-none tracking-tight">Oni</p>
-                <p class="text-[10px] text-muted-foreground/70 truncate mt-0.5">{name || 'Streaming Server'}</p>
+                <p class="text-sm font-bold text-foreground leading-none tracking-tight">Oni Admin</p>
+                <p class="text-[11px] text-muted-foreground/60 truncate mt-1">{name || 'Streaming Server'}</p>
               </div>
             </div>
           </div>
 
           {/* Navigation */}
-          <ScrollArea className="flex-1 py-2 px-2">
+          <ScrollArea className="flex-1 py-3 px-3">
             {MENU.map((group, gi) => (
               <div key={group.section}>
-                {gi > 0 && <div class="my-2" />}
+                {gi > 0 && <div class="my-3" />}
                 {group.section && (
-                  <p class="text-[9px] uppercase tracking-[0.15em] text-muted-foreground/40 font-semibold px-3 mb-1 mt-1">
+                  <p class="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/40 font-bold px-3 mb-1.5 mt-1">
                     {group.section}
                   </p>
                 )}
@@ -186,18 +189,17 @@ export class AdminShell extends Component<AdminShellProps, AdminShellState> {
                       <button
                         key={item.id}
                         class={cn(
-                          'w-full flex items-center gap-2.5 px-3 py-[7px] rounded-lg text-[13px] transition-all duration-150',
+                          'w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition-all duration-150 cursor-pointer',
                           isActive
-                            ? 'bg-primary/15 text-primary font-medium shadow-sm shadow-primary/5'
-                            : 'text-muted-foreground hover:text-foreground hover:bg-accent/60'
+                            ? 'bg-primary/10 text-primary font-semibold border border-primary/20'
+                            : 'text-muted-foreground hover:text-foreground hover:bg-accent border border-transparent'
                         )}
                         onClick={() => onTabChange(item.id)}
                       >
-                        <span class={cn(isActive ? 'text-primary' : 'text-muted-foreground/60')}>
+                        <span class={cn(isActive ? 'text-primary' : 'text-muted-foreground/50')}>
                           <Icon />
                         </span>
                         {item.label}
-                        {isActive && <span class="ml-auto w-1 h-4 rounded-full bg-primary/60" />}
                       </button>
                     );
                   })}
@@ -207,9 +209,9 @@ export class AdminShell extends Component<AdminShellProps, AdminShellState> {
           </ScrollArea>
 
           {/* Sidebar footer */}
-          <div class="px-2 py-2 border-t border-border/30">
+          <div class="px-3 py-3 border-t border-border">
             <button
-              class="w-full flex items-center gap-2.5 px-3 py-[7px] rounded-lg text-[13px] text-muted-foreground/60 hover:text-foreground hover:bg-accent/60 transition-all duration-150"
+              class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] text-muted-foreground hover:text-foreground hover:bg-accent transition-all duration-150 cursor-pointer"
               onClick={() => { window.location.href = '/'; }}
             >
               <IconArrowLeft />
@@ -220,39 +222,37 @@ export class AdminShell extends Component<AdminShellProps, AdminShellState> {
         </aside>
 
         {/* Main content area */}
-        <div class="flex-1 flex flex-col min-w-0">
+        <div class="relative z-10 flex-1 flex flex-col min-w-0">
           {/* Top bar */}
-          <header class="h-12 shrink-0 border-b border-border/40 bg-card/40 backdrop-blur-sm flex items-center justify-between px-6 gap-4">
-            <p class="text-[13px] text-muted-foreground/70 truncate min-w-0">
+          <header class="h-14 shrink-0 border-b border-border bg-card/40 flex items-center justify-between px-6 gap-4">
+            <p class="text-sm font-medium text-muted-foreground/80 truncate min-w-0">
               {streamTitle || name || 'Oni Streaming Server'}
             </p>
-            <div class="flex items-center gap-2.5 shrink-0">
+            <div class="flex items-center gap-3 shrink-0">
               {online && viewerCount > 0 && (
-                <span class="text-[11px] text-muted-foreground/50 flex items-center gap-1">
-                  <svg class="size-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <Badge variant="outline" className="tabular-nums gap-1.5">
+                  <svg class="size-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" />
                   </svg>
                   {viewerCount}
-                </span>
+                </Badge>
               )}
-              <div class={cn(
-                'flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium',
-                online
-                  ? 'bg-success/10 text-success ring-1 ring-success/20'
-                  : 'bg-muted text-muted-foreground ring-1 ring-border/50'
+              <Badge variant={online ? 'default' : 'secondary'} className={cn(
+                'gap-1.5',
+                online && 'bg-success text-success-foreground'
               )}>
                 <span class={cn(
                   'size-1.5 rounded-full',
-                  online ? 'bg-success animate-pulse' : 'bg-muted-foreground/50'
+                  online ? 'bg-success-foreground live-dot' : 'bg-muted-foreground/50'
                 )} />
                 {online ? 'Live' : 'Offline'}
-              </div>
+              </Badge>
             </div>
           </header>
 
           {/* Page content */}
           <main class="flex-1 overflow-y-auto">
-            <div class="max-w-5xl mx-auto px-6 py-6">
+            <div class="max-w-5xl mx-auto px-6 py-8">
               {children}
             </div>
           </main>
