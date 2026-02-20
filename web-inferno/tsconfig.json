@@ -16,8 +16,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "blazecn": ["../../blazecn/src/index.ts"],
-      "blazecn/*": ["../../blazecn/src/*"]
+      "blazecn": ["node_modules/blazecn/src/index.ts"],
+      "blazecn/*": ["node_modules/blazecn/src/*"]
     },
     "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
