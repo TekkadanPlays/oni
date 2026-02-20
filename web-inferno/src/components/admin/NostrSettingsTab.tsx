@@ -91,11 +91,11 @@ export class NostrSettingsTab extends Component<{}, NostrSettingsTabState> {
         </div>
 
         {/* Auth Section */}
-        <Card className="mb-4 overflow-hidden">
-          <div class="px-6 py-4 border-b border-border">
-            <p class="text-sm font-semibold text-foreground">Account</p>
-          </div>
-          <CardContent className="p-6">
+        <Card className="mb-4">
+          <CardHeader>
+            <CardTitle>Account</CardTitle>
+          </CardHeader>
+          <CardContent>
             {pubkey ? (
               <div>
                 <div class="flex items-start gap-4 mb-4">
@@ -124,15 +124,15 @@ export class NostrSettingsTab extends Component<{}, NostrSettingsTabState> {
                 <div class="grid grid-cols-3 gap-3 mb-4">
                   <div class="text-center p-2 rounded-md bg-background">
                     <p class="text-lg font-semibold text-foreground">{relayCount}</p>
-                    <p class="text-[10px] text-muted-foreground">Relays</p>
+                    <p class="text-xs text-muted-foreground">Relays</p>
                   </div>
                   <div class="text-center p-2 rounded-md bg-background">
                     <p class="text-lg font-semibold text-foreground">{followingCount}</p>
-                    <p class="text-[10px] text-muted-foreground">Following</p>
+                    <p class="text-xs text-muted-foreground">Following</p>
                   </div>
                   <div class="text-center p-2 rounded-md bg-background">
                     <p class="text-lg font-semibold text-foreground capitalize">{bootstrapPhase}</p>
-                    <p class="text-[10px] text-muted-foreground">Status</p>
+                    <p class="text-xs text-muted-foreground">Status</p>
                   </div>
                 </div>
 
@@ -160,15 +160,17 @@ export class NostrSettingsTab extends Component<{}, NostrSettingsTabState> {
         </Card>
 
         {/* NIP-53 Live Events Section */}
-        <Card className="mb-4 overflow-hidden">
-          <div class="flex items-center justify-between px-6 py-4 border-b border-border">
-            <div>
-              <p class="text-sm font-semibold text-foreground">NIP-53 Live Events</p>
-              <p class="text-xs text-muted-foreground mt-0.5">Auto-publish live activity events to your outbox relays.</p>
+        <Card className="mb-4">
+          <CardHeader>
+            <div class="flex items-center justify-between">
+              <div>
+                <CardTitle>NIP-53 Live Events</CardTitle>
+                <CardDescription>Auto-publish live activity events to your outbox relays.</CardDescription>
+              </div>
+              <Switch checked={liveEventsEnabled} onChange={(checked: boolean) => setLiveEventsEnabled(checked)} />
             </div>
-            <Switch checked={liveEventsEnabled} onChange={(checked: boolean) => setLiveEventsEnabled(checked)} />
-          </div>
-          <CardContent className="p-6">
+          </CardHeader>
+          <CardContent>
             {liveEventsEnabled && !pubkey && (
               <Alert variant="destructive" className="mb-2">
                 <AlertDescription>You must connect a Nostr identity above to publish live events.</AlertDescription>
@@ -192,12 +194,12 @@ export class NostrSettingsTab extends Component<{}, NostrSettingsTabState> {
         </Card>
 
         {/* Info Section */}
-        <Card className="overflow-hidden">
-          <div class="px-6 py-4 border-b border-border">
-            <p class="text-sm font-semibold text-foreground">How it works</p>
-          </div>
-          <CardContent className="p-6">
-            <ul class="text-xs text-muted-foreground space-y-1.5">
+        <Card>
+          <CardHeader>
+            <CardTitle>How it works</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul class="text-sm text-muted-foreground space-y-1.5">
               <li>• Your Nostr identity is bootstrapped by querying indexer relays for your profile (kind 0) and relay list (NIP-65 kind 10002).</li>
               <li>• Outbox and inbox relays from your NIP-65 list are automatically populated in the Relay Manager.</li>
               <li>• NIP-53 live events are published to your outbox relays so followers can discover your stream.</li>

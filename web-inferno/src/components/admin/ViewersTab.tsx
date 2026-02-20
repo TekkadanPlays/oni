@@ -1,7 +1,7 @@
 import { Component } from 'inferno';
 import { createElement } from 'inferno-create-element';
 import {
-  Button, Badge, Card, CardHeader, CardTitle, CardContent,
+  Button, Badge, Card, CardHeader, CardTitle, CardDescription, CardContent,
   Alert, AlertDescription, Skeleton, Separator,
 } from 'blazecn';
 import { cn } from 'blazecn';
@@ -139,42 +139,34 @@ export class ViewersTab extends Component<{ token: string }, ViewersTabState> {
         )}
 
         {/* Stats */}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
-          <div class="rounded-xl border border-border p-5 flex items-center gap-4 bg-card/60 border-glow">
-            <div class="size-11 rounded-xl flex items-center justify-center bg-blue-500/10 text-blue-400">
-              <IconUsers />
-            </div>
-            <div>
-              <p class="text-xs text-muted-foreground font-medium">Stream Viewers</p>
-              <p class="text-2xl font-bold text-foreground tabular-nums">{totalViewers}</p>
-            </div>
-          </div>
-          <div class="rounded-xl border border-border p-5 flex items-center gap-4 bg-card/60 border-glow">
-            <div class="size-11 rounded-xl flex items-center justify-center bg-emerald-500/10 text-emerald-400">
-              <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-              </svg>
-            </div>
-            <div>
-              <p class="text-xs text-muted-foreground font-medium">Chat Participants</p>
-              <p class="text-2xl font-bold text-foreground tabular-nums">{totalChatUsers}</p>
-            </div>
-          </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+          <Card>
+            <CardHeader>
+              <CardDescription>Stream Viewers</CardDescription>
+              <CardTitle className="text-2xl tabular-nums">{totalViewers}</CardTitle>
+            </CardHeader>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardDescription>Chat Participants</CardDescription>
+              <CardTitle className="text-2xl tabular-nums">{totalChatUsers}</CardTitle>
+            </CardHeader>
+          </Card>
         </div>
 
         {/* Viewer List */}
-        <Card className="overflow-hidden mb-4">
-          <div class="px-6 py-4 border-b border-border">
-            <p class="text-sm font-semibold text-foreground">Connected Viewers</p>
-          </div>
-          <CardContent className="p-0">
+        <Card className="mb-4">
+          <CardHeader>
+            <CardTitle>Connected Viewers</CardTitle>
+          </CardHeader>
+          <CardContent>
             {totalViewers === 0 ? (
               <div class="text-center py-8">
                 <div class="size-12 rounded-full bg-muted/30 flex items-center justify-center mx-auto mb-3">
                   <IconUsers />
                 </div>
                 <p class="text-sm text-muted-foreground">No viewers connected</p>
-                <p class="text-[11px] text-muted-foreground/50 mt-1">Viewers will appear here when someone watches your stream.</p>
+                <p class="text-xs text-muted-foreground mt-1">Viewers will appear here when someone watches your stream.</p>
               </div>
             ) : (
               <div class="rounded-lg border border-border/40 overflow-hidden">
@@ -225,11 +217,11 @@ export class ViewersTab extends Component<{ token: string }, ViewersTabState> {
         </Card>
 
         {/* Chat Clients */}
-        <Card className="overflow-hidden">
-          <div class="px-6 py-4 border-b border-border">
-            <p class="text-sm font-semibold text-foreground">Chat Participants</p>
-          </div>
-          <CardContent className="p-5">
+        <Card>
+          <CardHeader>
+            <CardTitle>Chat Participants</CardTitle>
+          </CardHeader>
+          <CardContent>
             {totalChatUsers === 0 ? (
               <div class="text-center py-6">
                 <p class="text-sm text-muted-foreground">No chat participants</p>

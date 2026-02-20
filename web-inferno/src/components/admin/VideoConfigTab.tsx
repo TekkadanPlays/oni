@@ -203,42 +203,36 @@ export class VideoConfigTab extends Component<{ token: string }, VideoConfigStat
         : `${variant.scaledWidth}×${variant.scaledHeight}`;
 
     return (
-      <Card key={index} className="overflow-hidden">
-        {/* Variant header with gradient accent */}
-        <div class="flex items-center justify-between px-6 py-4 border-b border-border bg-gradient-to-r from-primary/[0.04] to-transparent">
-          <div class="flex items-center gap-3">
-            <div class="size-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-              <IconVideo />
+      <Card key={index}>
+        <CardHeader>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <CardTitle>Output #{index + 1}</CardTitle>
+              <Badge variant="secondary">{resLabel}</Badge>
+              {isPassthrough && (
+                <Badge variant="outline">Passthrough</Badge>
+              )}
             </div>
-            <div>
-              <div class="flex items-center gap-2">
-                <span class="text-sm font-semibold text-foreground">Output #{index + 1}</span>
-                <Badge variant="secondary" className="text-[10px]">{resLabel}</Badge>
-                {isPassthrough && (
-                  <Badge variant="outline" className="text-[10px] text-primary border-primary/30">Passthrough</Badge>
-                )}
-              </div>
-            </div>
+            {this.state.variants.length > 1 && (
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                className="text-destructive/60 hover:text-destructive hover:bg-destructive/10"
+                onClick={() => this.removeVariant(index)}
+              >
+                <IconTrash />
+              </Button>
+            )}
           </div>
-          {this.state.variants.length > 1 && (
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              className="text-destructive/60 hover:text-destructive hover:bg-destructive/10"
-              onClick={() => this.removeVariant(index)}
-            >
-              <IconTrash />
-            </Button>
-          )}
-        </div>
+        </CardHeader>
 
-        <CardContent className="p-6">
+        <CardContent>
           <div class="space-y-6">
             {/* Video passthrough toggle */}
-            <div class="flex items-center justify-between rounded-xl border border-border bg-muted/20 p-4">
+            <div class="flex items-center justify-between rounded-lg border p-4">
               <div class="pr-4">
-                <p class="text-sm font-medium text-foreground">Video Passthrough</p>
-                <p class="text-xs text-muted-foreground mt-0.5">Re-use the inbound stream without re-encoding. Lowest CPU.</p>
+                <p class="text-sm font-medium">Video Passthrough</p>
+                <p class="text-sm text-muted-foreground mt-0.5">Re-use the inbound stream without re-encoding. Lowest CPU.</p>
               </div>
               <Switch
                 checked={variant.videoPassthrough}
@@ -433,17 +427,12 @@ export class VideoConfigTab extends Component<{ token: string }, VideoConfigStat
         )}
 
         {/* Stream Key */}
-        <Card className="overflow-hidden">
-          <div class="flex items-center gap-3 px-6 py-4 border-b border-border bg-gradient-to-r from-primary/[0.04] to-transparent">
-            <div class="size-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-              <IconKey />
-            </div>
-            <div>
-              <p class="text-sm font-semibold text-foreground">Stream Key</p>
-              <p class="text-xs text-muted-foreground">Authenticate with your broadcasting software.</p>
-            </div>
-          </div>
-          <CardContent className="p-6 space-y-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Stream Key</CardTitle>
+            <CardDescription>Authenticate with your broadcasting software.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
             <div class="flex items-center gap-2">
               <div class="flex-1 relative">
                 <Input
@@ -511,14 +500,14 @@ export class VideoConfigTab extends Component<{ token: string }, VideoConfigStat
         </Card>
 
         {/* Latency */}
-        <Card className="overflow-hidden">
-          <div class="px-6 py-4 border-b border-border">
-            <p class="text-sm font-semibold text-foreground">Latency</p>
-            <p class="text-xs text-muted-foreground mt-0.5">
+        <Card>
+          <CardHeader>
+            <CardTitle>Latency</CardTitle>
+            <CardDescription>
               Lower latency is better for interactive streams. Higher latency produces better video quality.
-            </p>
-          </div>
-          <CardContent className="p-6">
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {LATENCY_LEVELS.map((level) => {
                 const isActive = latencyLevel === level.value;

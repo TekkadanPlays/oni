@@ -191,17 +191,12 @@ export class ChatConfigTab extends Component<{ token: string }, ChatConfigState>
         )}
 
         {/* System Message */}
-        <Card className="overflow-hidden">
-          <div class="flex items-center gap-3 px-6 py-4 border-b border-border bg-gradient-to-r from-primary/[0.04] to-transparent">
-            <div class="size-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-              <IconSend />
-            </div>
-            <div>
-              <p class="text-sm font-semibold text-foreground">Send System Message</p>
-              <p class="text-xs text-muted-foreground">Broadcast to all connected chat users.</p>
-            </div>
-          </div>
-          <CardContent className="p-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Send System Message</CardTitle>
+            <CardDescription>Broadcast to all connected chat users.</CardDescription>
+          </CardHeader>
+          <CardContent>
             <div class="flex gap-2">
               <Input
                 className="flex-1 text-xs"
@@ -224,14 +219,11 @@ export class ChatConfigTab extends Component<{ token: string }, ChatConfigState>
         </Card>
 
         {/* General Chat Settings */}
-        <Card className="overflow-hidden">
-          <div class="flex items-center gap-3 px-6 py-4 border-b border-border">
-            <div class="size-8 rounded-lg bg-muted/50 flex items-center justify-center text-muted-foreground">
-              <IconChat />
-            </div>
-            <p class="text-sm font-semibold text-foreground">General</p>
-          </div>
-          <CardContent className="p-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>General</CardTitle>
+          </CardHeader>
+          <CardContent>
             <div class="space-y-3">
               {this.renderToggle(
                 'Disable Chat',
@@ -259,17 +251,12 @@ export class ChatConfigTab extends Component<{ token: string }, ChatConfigState>
         </Card>
 
         {/* Moderation */}
-        <Card className="overflow-hidden">
-          <div class="flex items-center gap-3 px-6 py-4 border-b border-border">
-            <div class="size-8 rounded-lg bg-muted/50 flex items-center justify-center text-muted-foreground">
-              <IconShield />
-            </div>
-            <div>
-              <p class="text-sm font-semibold text-foreground">Moderation</p>
-              <p class="text-xs text-muted-foreground">Protect your chat from spam and unwanted content.</p>
-            </div>
-          </div>
-          <CardContent className="p-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Moderation</CardTitle>
+            <CardDescription>Protect your chat from spam and unwanted content.</CardDescription>
+          </CardHeader>
+          <CardContent>
             <div class="space-y-3">
               {this.renderToggle(
                 'Established User Mode',
@@ -297,18 +284,16 @@ export class ChatConfigTab extends Component<{ token: string }, ChatConfigState>
         </Card>
 
         {/* Usernames */}
-        <Card className="overflow-hidden">
-          <div class="flex items-center gap-3 px-6 py-4 border-b border-border">
-            <div class="size-8 rounded-lg bg-muted/50 flex items-center justify-center text-muted-foreground">
-              <IconUsers />
-            </div>
-            <p class="text-sm font-semibold text-foreground">Usernames</p>
-          </div>
-          <CardContent className="p-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Usernames</CardTitle>
+            <CardDescription>Manage forbidden and suggested usernames for chat.</CardDescription>
+          </CardHeader>
+          <CardContent>
             <div class="space-y-5">
               <div class="space-y-2">
                 <Label>Forbidden Usernames</Label>
-                <p class="text-[11px] text-muted-foreground">
+                <p class="text-sm text-muted-foreground">
                   Users will not be able to register with these names. One per line.
                 </p>
                 <Textarea
@@ -326,7 +311,7 @@ export class ChatConfigTab extends Component<{ token: string }, ChatConfigState>
 
               <div class="space-y-2">
                 <Label>Suggested Usernames</Label>
-                <p class="text-[11px] text-muted-foreground">
+                <p class="text-sm text-muted-foreground">
                   Suggested names shown to new users when registering. One per line.
                 </p>
                 <Textarea

@@ -128,12 +128,12 @@ export class GeneralConfigTab extends Component<{ token: string }, GeneralConfig
         )}
 
         {/* Instance Details */}
-        <Card className="overflow-hidden">
-          <div class="px-6 py-4 border-b border-border">
-            <p class="text-sm font-semibold text-foreground">Instance Details</p>
-            <p class="text-xs text-muted-foreground mt-0.5">Basic information about your streaming server.</p>
-          </div>
-          <CardContent className="p-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Instance Details</CardTitle>
+            <CardDescription>Basic information about your streaming server.</CardDescription>
+          </CardHeader>
+          <CardContent>
             <div class="space-y-4">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="space-y-1.5">
@@ -144,7 +144,7 @@ export class GeneralConfigTab extends Component<{ token: string }, GeneralConfig
                     onInput={this.handleInput('name')}
                     placeholder="My Stream"
                   />
-                  <p class="text-[11px] text-muted-foreground">The public name of your server.</p>
+                  <p class="text-xs text-muted-foreground">The public name of your server.</p>
                 </div>
                 <div class="space-y-1.5">
                   <Label>Stream Title</Label>
@@ -154,7 +154,7 @@ export class GeneralConfigTab extends Component<{ token: string }, GeneralConfig
                     onInput={this.handleInput('title')}
                     placeholder="What are you streaming?"
                   />
-                  <p class="text-[11px] text-muted-foreground">Shown when your stream is live.</p>
+                  <p class="text-xs text-muted-foreground">Shown when your stream is live.</p>
                 </div>
               </div>
 
@@ -166,7 +166,7 @@ export class GeneralConfigTab extends Component<{ token: string }, GeneralConfig
                   onInput={this.handleInput('summary')}
                   placeholder="Tell viewers about your stream..."
                 />
-                <p class="text-[11px] text-muted-foreground">A brief description shown on your stream page.</p>
+                <p class="text-xs text-muted-foreground">A brief description shown on your stream page.</p>
               </div>
 
               <div class="space-y-1.5">
@@ -177,19 +177,19 @@ export class GeneralConfigTab extends Component<{ token: string }, GeneralConfig
                   onInput={this.handleInput('tags')}
                   placeholder="gaming, music, art"
                 />
-                <p class="text-[11px] text-muted-foreground">Comma-separated tags to help people discover your stream.</p>
+                <p class="text-xs text-muted-foreground">Comma-separated tags to help people discover your stream.</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         {/* Appearance */}
-        <Card className="overflow-hidden">
-          <div class="px-6 py-4 border-b border-border">
-            <p class="text-sm font-semibold text-foreground">Appearance</p>
-            <p class="text-xs text-muted-foreground mt-0.5">Customize what viewers see when your stream is offline.</p>
-          </div>
-          <CardContent className="p-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Appearance</CardTitle>
+            <CardDescription>Customize what viewers see when your stream is offline.</CardDescription>
+          </CardHeader>
+          <CardContent>
             <div class="space-y-1.5">
               <Label>Offline Message</Label>
               <Textarea
@@ -198,21 +198,21 @@ export class GeneralConfigTab extends Component<{ token: string }, GeneralConfig
                 onInput={this.handleInput('offlineMessage')}
                 placeholder="Custom message shown when stream is offline"
               />
-              <p class="text-[11px] text-muted-foreground">Displayed to visitors when you're not streaming.</p>
+              <p class="text-xs text-muted-foreground">Displayed to visitors when you're not streaming.</p>
             </div>
           </CardContent>
         </Card>
 
         {/* Content Settings */}
-        <Card className="overflow-hidden">
-          <div class="px-6 py-4 border-b border-border">
-            <p class="text-sm font-semibold text-foreground">Content Settings</p>
-          </div>
-          <CardContent className="p-6">
-            <div class="flex items-center justify-between rounded-xl border border-border bg-muted/20 p-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Content Settings</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div class="flex items-center justify-between rounded-lg border p-4">
               <div>
-                <p class="text-sm text-foreground font-medium">NSFW Content</p>
-                <p class="text-[11px] text-muted-foreground">Mark your stream as containing adult content.</p>
+                <p class="text-sm font-medium">NSFW Content</p>
+                <p class="text-sm text-muted-foreground">Mark your stream as containing adult content.</p>
               </div>
               <Switch
                 checked={nsfw}

@@ -198,7 +198,7 @@ export class AccessTokensTab extends Component<{ token: string }, AccessTokensTa
             <AlertDescription>
               <div class="space-y-2">
                 <p class="text-sm font-medium text-success">Token created successfully!</p>
-                <p class="text-[11px] text-muted-foreground">
+                <p class="text-sm text-muted-foreground">
                   Copy this token now — you won't be able to see it again.
                 </p>
                 <div class="flex items-center gap-2">
@@ -221,12 +221,12 @@ export class AccessTokensTab extends Component<{ token: string }, AccessTokensTa
 
         {/* Create form */}
         {showCreate && (
-          <Card className="mb-4 overflow-hidden">
-            <div class="px-6 py-4 border-b border-border">
-              <p class="text-sm font-semibold text-foreground">Create Access Token</p>
-              <p class="text-xs text-muted-foreground mt-0.5">Create a new token for API access or integrations.</p>
-            </div>
-            <CardContent className="p-6">
+          <Card className="mb-4">
+            <CardHeader>
+              <CardTitle>Create Access Token</CardTitle>
+              <CardDescription>Create a new token for API access or integrations.</CardDescription>
+            </CardHeader>
+            <CardContent>
               <div class="space-y-3">
                 <div class="space-y-1.5">
                   <Label>Token Name</Label>
@@ -239,7 +239,7 @@ export class AccessTokensTab extends Component<{ token: string }, AccessTokensTa
                       if (e.key === 'Enter') this.handleCreate();
                     }}
                   />
-                  <p class="text-[11px] text-muted-foreground">A descriptive name to identify this token.</p>
+                  <p class="text-xs text-muted-foreground">A descriptive name to identify this token.</p>
                 </div>
                 <Button onClick={this.handleCreate} disabled={!newTokenName.trim() || creating}>
                   {creating ? 'Creating...' : 'Create Token'}
@@ -251,8 +251,8 @@ export class AccessTokensTab extends Component<{ token: string }, AccessTokensTa
 
         {/* Token list */}
         {tokens.length === 0 ? (
-          <Card className="overflow-hidden py-8">
-            <CardContent className="px-6">
+          <Card>
+            <CardContent className="py-12">
               <div class="flex flex-col items-center text-center">
                 <div class="size-14 rounded-full bg-muted/30 flex items-center justify-center mb-3">
                   <IconKey />
@@ -271,7 +271,7 @@ export class AccessTokensTab extends Component<{ token: string }, AccessTokensTa
               const isConfirmingDelete = confirmDelete === token.accessToken;
 
               return (
-                <Card key={token.accessToken} className="overflow-hidden">
+                <Card key={token.accessToken}>
                   <CardContent className="p-5">
                     <div class="flex items-start justify-between gap-3">
                       <div class="min-w-0 flex-1">
@@ -350,8 +350,8 @@ export class AccessTokensTab extends Component<{ token: string }, AccessTokensTa
         )}
 
         {/* Info */}
-        <div class="mt-6 rounded-xl border border-border bg-muted/20 p-5">
-          <p class="text-xs text-muted-foreground leading-relaxed">
+        <div class="mt-6">
+          <p class="text-sm text-muted-foreground leading-relaxed">
             Access tokens allow external applications to interact with your Oni server's API.
             Tokens with admin access can modify server configuration. Keep your tokens secure and
             revoke any that are no longer needed.

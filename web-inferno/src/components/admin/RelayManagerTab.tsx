@@ -81,33 +81,35 @@ export class RelayManagerTab extends Component<{}, RelayManagerTabState> {
     return (
       <Card
         key={profile.id}
-        className={cn('overflow-hidden', isActive && 'border-primary/40')}
+        className={cn(isActive && 'border-primary/40')}
       >
-        <div class={cn('flex items-center justify-between px-5 py-3 border-b border-border', isActive && 'bg-primary/[0.04]')}>
-          <div class="flex items-center gap-2">
-            <button
-              class={cn('text-sm font-semibold cursor-pointer bg-transparent border-none', isActive ? 'text-primary' : 'text-foreground hover:text-primary')}
-              onClick={() => setActiveProfile(profile.id)}
-            >
-              {profile.name}
-            </button>
-            {isActive && (
-              <Badge variant="default" className="text-[10px] px-1.5 py-0">Active</Badge>
-            )}
-            {profile.builtin && (
-              <Badge variant="secondary" className="text-[10px] px-1.5 py-0">Built-in</Badge>
-            )}
+        <CardHeader>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <button
+                class={cn('text-sm font-semibold cursor-pointer bg-transparent border-none', isActive ? 'text-primary' : 'text-foreground hover:text-primary')}
+                onClick={() => setActiveProfile(profile.id)}
+              >
+                {profile.name}
+              </button>
+              {isActive && (
+                <Badge variant="default">Active</Badge>
+              )}
+              {profile.builtin && (
+                <Badge variant="secondary">Built-in</Badge>
+              )}
+            </div>
+            <div class="flex items-center gap-2">
+              <Badge variant="outline">{profile.relays.length} relays</Badge>
+              {!profile.builtin && (
+                <Button variant="ghost" size="xs" className="text-destructive hover:text-destructive" onClick={() => deleteProfile(profile.id)}>
+                  Delete
+                </Button>
+              )}
+            </div>
           </div>
-          <div class="flex items-center gap-2">
-            <Badge variant="outline" className="text-[10px]">{profile.relays.length} relays</Badge>
-            {!profile.builtin && (
-              <Button variant="ghost" size="xs" className="text-destructive hover:text-destructive" onClick={() => deleteProfile(profile.id)}>
-                Delete
-              </Button>
-            )}
-          </div>
-        </div>
-        <CardContent className="p-5">
+        </CardHeader>
+        <CardContent>
           <div class="space-y-1.5 mb-3">
             {profile.relays.length === 0 ? (
               <p class="text-xs text-muted-foreground italic">No relays configured</p>
