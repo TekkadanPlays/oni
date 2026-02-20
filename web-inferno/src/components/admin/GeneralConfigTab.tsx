@@ -1,6 +1,6 @@
 import { Component } from 'inferno';
 import { createElement } from 'inferno-create-element';
-import { Input, Textarea, Label, Switch, Button, Spinner, Alert, AlertDescription } from 'blazecn';
+import { Input, Textarea, Label, Switch, Button, Alert, AlertDescription, Card, CardHeader, CardTitle, CardDescription, CardContent, Separator, Badge, Skeleton, toast } from 'blazecn';
 import { api } from '../../api';
 
 interface GeneralConfigState {
@@ -81,12 +81,12 @@ export class GeneralConfigTab extends Component<{ token: string }, GeneralConfig
         },
       });
       this.setState({ saving: false, success: 'Configuration saved.' });
+      toast({ title: 'Configuration saved', description: 'Your changes have been applied.' });
       setTimeout(() => this.setState({ success: null }), 3000);
     } catch (err) {
-      this.setState({
-        saving: false,
-        error: err instanceof Error ? err.message : 'Failed to save',
-      });
+      const msg = err instanceof Error ? err.message : 'Failed to save';
+      this.setState({ saving: false, error: msg });
+      toast({ title: 'Save failed', description: msg, variant: 'destructive' });
     }
   };
 
@@ -99,15 +99,22 @@ export class GeneralConfigTab extends Component<{ token: string }, GeneralConfig
 
     if (loading) {
       return (
-        <div class="flex items-center justify-center py-12">
-          <Spinner />
+        <div class="max-w-3xl space-y-4">
+          <Skeleton className="h-8 w-64" />
+          <Skeleton className="h-4 w-96" />
+          <Skeleton className="h-64 rounded-xl" />
+          <Skeleton className="h-32 rounded-xl" />
+          <Skeleton className="h-20 rounded-xl" />
         </div>
       );
     }
 
     return (
-      <div>
-        <h1 class="text-2xl font-semibold text-foreground mb-6">General Configuration</h1>
+      <div class="max-w-3xl">
+        <div class="mb-6">
+          <h1 class="text-xl font-bold text-foreground tracking-tight">General Configuration</h1>
+          <p class="text-[13px] text-muted-foreground/60 mt-0.5">Configure your server's public-facing information.</p>
+        </div>
 
         {error && (
           <Alert variant="destructive" className="mb-4">
@@ -120,68 +127,112 @@ export class GeneralConfigTab extends Component<{ token: string }, GeneralConfig
           </Alert>
         )}
 
-        <div class="space-y-4 max-w-2xl">
-          <div class="space-y-1.5">
-            <Label>Server Name</Label>
-            <Input
-              type="text"
-              value={name}
-              onInput={this.handleInput('name')}
-            />
-          </div>
+        {/* Instance Details */}
+        <Card className="mb-4 py-4 gap-3">
+          <CardHeader>
+            <CardTitle className="text-sm">Instance Details</CardTitle>
+            <CardDescription>Basic information about your streaming server.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div class="space-y-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="space-y-1.5">
+                  <Label>Server Name</Label>
+                  <Input
+                    type="text"
+                    value={name}
+                    onInput={this.handleInput('name')}
+                    placeholder="My Stream"
+                  />
+                  <p class="text-[11px] text-muted-foreground">The public name of your server.</p>
+                </div>
+                <div class="space-y-1.5">
+                  <Label>Stream Title</Label>
+                  <Input
+                    type="text"
+                    value={title}
+                    onInput={this.handleInput('title')}
+                    placeholder="What are you streaming?"
+                  />
+                  <p class="text-[11px] text-muted-foreground">Shown when your stream is live.</p>
+                </div>
+              </div>
 
-          <div class="space-y-1.5">
-            <Label>Stream Title</Label>
-            <Input
-              type="text"
-              value={title}
-              onInput={this.handleInput('title')}
-            />
-          </div>
+              <div class="space-y-1.5">
+                <Label>Summary</Label>
+                <Textarea
+                  className="min-h-[100px]"
+                  value={summary}
+                  onInput={this.handleInput('summary')}
+                  placeholder="Tell viewers about your stream..."
+                />
+                <p class="text-[11px] text-muted-foreground">A brief description shown on your stream page.</p>
+              </div>
 
-          <div class="space-y-1.5">
-            <Label>Summary</Label>
-            <Textarea
-              className="min-h-[100px]"
-              value={summary}
-              onInput={this.handleInput('summary')}
-            />
-          </div>
+              <div class="space-y-1.5">
+                <Label>Tags</Label>
+                <Input
+                  type="text"
+                  value={tags}
+                  onInput={this.handleInput('tags')}
+                  placeholder="gaming, music, art"
+                />
+                <p class="text-[11px] text-muted-foreground">Comma-separated tags to help people discover your stream.</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-          <div class="space-y-1.5">
-            <Label>Tags (comma-separated)</Label>
-            <Input
-              type="text"
-              value={tags}
-              onInput={this.handleInput('tags')}
-              placeholder="gaming, music, art"
-            />
-          </div>
+        {/* Appearance */}
+        <Card className="mb-4 py-4 gap-3">
+          <CardHeader>
+            <CardTitle className="text-sm">Appearance</CardTitle>
+            <CardDescription>Customize what viewers see when your stream is offline.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div class="space-y-1.5">
+              <Label>Offline Message</Label>
+              <Textarea
+                className="min-h-[80px]"
+                value={offlineMessage}
+                onInput={this.handleInput('offlineMessage')}
+                placeholder="Custom message shown when stream is offline"
+              />
+              <p class="text-[11px] text-muted-foreground">Displayed to visitors when you're not streaming.</p>
+            </div>
+          </CardContent>
+        </Card>
 
-          <div class="space-y-1.5">
-            <Label>Offline Message</Label>
-            <Textarea
-              className="min-h-[80px]"
-              value={offlineMessage}
-              onInput={this.handleInput('offlineMessage')}
-              placeholder="Custom message shown when stream is offline"
-            />
-          </div>
+        {/* Content Settings */}
+        <Card className="mb-4 py-4 gap-3">
+          <CardHeader>
+            <CardTitle className="text-sm">Content Settings</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm text-foreground font-medium">NSFW Content</p>
+                <p class="text-[11px] text-muted-foreground">Mark your stream as containing adult content.</p>
+              </div>
+              <Switch
+                checked={nsfw}
+                onChange={(checked: boolean) => this.setState({ nsfw: checked })}
+              />
+            </div>
+          </CardContent>
+        </Card>
 
-          <div class="flex items-center gap-3">
-            <Switch
-              checked={nsfw}
-              onChange={(checked: boolean) => this.setState({ nsfw: checked })}
-            />
-            <Label>Mark as NSFW</Label>
-          </div>
-
+        {/* Save */}
+        <div class="flex items-center gap-3">
           <Button
             onClick={this.handleSave}
             disabled={saving}
           >
             {saving ? 'Saving...' : 'Save Configuration'}
           </Button>
+          {success && (
+            <Badge variant="outline" className="text-success border-success/30">Saved</Badge>
+          )}
         </div>
       </div>
     );

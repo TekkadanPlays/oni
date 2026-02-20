@@ -1,6 +1,6 @@
 import { Component } from 'inferno';
 import { createElement } from 'inferno-create-element';
-import { Spinner, Button, Alert, AlertDescription, Drawer, DrawerContent, DrawerHeader, DrawerTitle } from 'blazecn';
+import { Spinner, Button, Alert, AlertDescription, Drawer, DrawerContent, DrawerHeader, DrawerTitle, Toaster } from 'blazecn';
 import { store, AppState } from '../store';
 import { Header } from './Header';
 import { VideoPlayer } from './VideoPlayer';
@@ -181,9 +181,11 @@ export class App extends Component<{}, AppComponentState> {
     const showChat = chatVisible && !chatDisabled && !isMobile;
 
     return (
-      <div class="flex flex-col min-h-screen bg-background">
+      <div class="flex flex-col h-screen bg-background overflow-hidden">
         <Header />
-        <div class="flex flex-1 overflow-hidden">
+        {/* Main content row: scrollable column + fixed chat sidebar — like original Owncast */}
+        <div class="flex flex-1 min-h-0">
+          {/* Scrollable main column */}
           <div class="flex flex-col flex-1 overflow-y-auto">
             {online ? (
               <VideoPlayer
@@ -200,15 +202,18 @@ export class App extends Component<{}, AppComponentState> {
               />
             )}
             {online && <Statusbar />}
+            {/* Spacer pushes footer to bottom when content is short */}
             <div class="flex-1" />
             <Footer />
           </div>
+          {/* Chat sidebar: full height from header to bottom of viewport */}
           {showChat && (
-            <div class="w-80 shrink-0 h-full">
+            <div class="w-80 shrink-0 border-l border-border/40">
               <ChatContainer />
             </div>
           )}
         </div>
+        {/* Mobile chat drawer */}
         <Drawer open={isMobile && !chatDisabled && chatVisible} onOpenChange={(open: boolean) => { if (!open) store.toggleChat(); }}>
           <DrawerHeader>
             <DrawerTitle>Chat</DrawerTitle>
@@ -217,6 +222,7 @@ export class App extends Component<{}, AppComponentState> {
             <ChatContainer />
           </DrawerContent>
         </Drawer>
+        <Toaster />
       </div>
     );
   }
