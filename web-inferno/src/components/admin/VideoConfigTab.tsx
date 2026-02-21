@@ -181,20 +181,20 @@ export class VideoConfigTab extends Component<{ token: string }, VideoConfigStat
         api.admin.setStreamOutputVariants(this.props.token, this.state.variants),
       ]);
       this.setState({ saving: false });
-      toast({ title: 'Video configuration saved', description: 'Changes will apply on next stream start.' });
+      toast.success('Video configuration saved', { description: 'Changes will apply on next stream start.' });
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Failed to save';
       this.setState({ saving: false, error: msg });
-      toast({ title: 'Save failed', description: msg, variant: 'destructive' });
+      toast.error('Save failed', { description: msg });
     }
   };
 
   private handleSaveStreamKeys = async () => {
     try {
       await api.admin.setStreamKeys(this.props.token, this.state.streamKeys);
-      toast({ title: 'Stream keys saved' });
+      toast.success('Stream keys saved');
     } catch (err) {
-      toast({ title: 'Failed to save stream keys', variant: 'destructive' });
+      toast.error('Failed to save stream keys');
     }
   };
 
@@ -233,9 +233,9 @@ export class VideoConfigTab extends Component<{ token: string }, VideoConfigStat
     try {
       await api.admin.setVideoCodec(this.props.token, codec);
       this.setState({ videoCodec: codec });
-      toast({ title: 'Video codec updated' });
+      toast.success('Video codec updated');
     } catch {
-      toast({ title: 'Failed to update codec', variant: 'destructive' });
+      toast.error('Failed to update codec');
     }
   };
 
@@ -257,7 +257,7 @@ export class VideoConfigTab extends Component<{ token: string }, VideoConfigStat
 
   private copyToClipboard(text: string) {
     navigator.clipboard.writeText(text).then(() => {
-      toast({ title: 'Copied to clipboard' });
+      toast('Copied to clipboard');
     }).catch(() => {});
   }
 

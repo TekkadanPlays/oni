@@ -95,11 +95,11 @@ export class GeneralConfigTab extends Component<{ token: string }, GeneralConfig
         this.state.extraPageContent ? api.admin.setExtraPageContent(this.props.token, this.state.extraPageContent) : Promise.resolve(),
       ]);
       this.setState({ saving: false });
-      toast({ title: 'Configuration saved', description: 'Your changes have been applied.' });
+      toast.success('Configuration saved', { description: 'Your changes have been applied.' });
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Failed to save';
       this.setState({ saving: false, error: msg });
-      toast({ title: 'Save failed', description: msg, variant: 'destructive' });
+      toast.error('Save failed', { description: msg });
     }
   };
 

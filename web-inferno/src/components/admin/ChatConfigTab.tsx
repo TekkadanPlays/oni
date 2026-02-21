@@ -92,9 +92,9 @@ export class ChatConfigTab extends Component<{ token: string }, ChatConfigState>
     try {
       await apiCall(this.props.token, newValue);
       this.setState({ [stateKey]: newValue } as any);
-      toast({ title: 'Setting updated' });
+      toast.success('Setting updated');
     } catch (err) {
-      toast({ title: 'Failed to update setting', variant: 'destructive' });
+      toast.error('Failed to update setting');
     }
   }
 
@@ -105,9 +105,9 @@ export class ChatConfigTab extends Component<{ token: string }, ChatConfigState>
         .map((s: string) => s.trim())
         .filter(Boolean);
       await api.admin.updateForbiddenUsernames(this.props.token, usernames);
-      toast({ title: 'Forbidden usernames updated' });
+      toast.success('Forbidden usernames updated');
     } catch {
-      toast({ title: 'Failed to save', variant: 'destructive' });
+      toast.error('Failed to save');
     }
   };
 
@@ -118,9 +118,9 @@ export class ChatConfigTab extends Component<{ token: string }, ChatConfigState>
         .map((s: string) => s.trim())
         .filter(Boolean);
       await api.admin.updateSuggestedUsernames(this.props.token, usernames);
-      toast({ title: 'Suggested usernames updated' });
+      toast.success('Suggested usernames updated');
     } catch {
-      toast({ title: 'Failed to save', variant: 'destructive' });
+      toast.error('Failed to save');
     }
   };
 
@@ -131,10 +131,10 @@ export class ChatConfigTab extends Component<{ token: string }, ChatConfigState>
     try {
       await api.admin.sendSystemMessage(this.props.token, msg);
       this.setState({ systemMessage: '', sendingMessage: false });
-      toast({ title: 'System message sent' });
+      toast.success('System message sent');
     } catch {
       this.setState({ sendingMessage: false });
-      toast({ title: 'Failed to send message', variant: 'destructive' });
+      toast.error('Failed to send message');
     }
   };
 

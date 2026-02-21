@@ -115,10 +115,10 @@ export class AccessTokensTab extends Component<{ token: string }, AccessTokensTa
         newlyCreatedToken: result?.accessToken || null,
       });
       this.loadTokens();
-      toast({ title: 'Access token created' });
+      toast.success('Access token created');
     } catch (err) {
       this.setState({ creating: false });
-      toast({ title: 'Failed to create token', variant: 'destructive' });
+      toast.error('Failed to create token');
     }
   };
 
@@ -127,9 +127,9 @@ export class AccessTokensTab extends Component<{ token: string }, AccessTokensTa
       await api.admin.deleteAccessToken(this.props.token, tokenValue);
       this.setState({ confirmDelete: null });
       this.loadTokens();
-      toast({ title: 'Token deleted' });
+      toast.success('Token deleted');
     } catch {
-      toast({ title: 'Failed to delete token', variant: 'destructive' });
+      toast.error('Failed to delete token');
     }
   };
 
@@ -145,7 +145,7 @@ export class AccessTokensTab extends Component<{ token: string }, AccessTokensTa
 
   private copyToClipboard(text: string) {
     navigator.clipboard.writeText(text).then(() => {
-      toast({ title: 'Copied to clipboard' });
+      toast('Copied to clipboard');
     }).catch(() => {});
   }
 

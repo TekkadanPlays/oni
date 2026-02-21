@@ -139,11 +139,11 @@ export const api = {
 
     // Video
     setStreamLatencyLevel: (token: string, value: number) =>
-      adminPost<unknown>('/admin/config/streamlatencylevel', token, { value }),
+      adminPost<unknown>('/admin/config/video/streamlatencylevel', token, { value }),
     setStreamOutputVariants: (token: string, variants: unknown[]) =>
-      adminPost<unknown>('/admin/config/streamoutputvariants', token, { value: variants }),
+      adminPost<unknown>('/admin/config/video/streamoutputvariants', token, { value: variants }),
     setVideoCodec: (token: string, value: string) =>
-      adminPost<unknown>('/admin/config/videocodec', token, { value }),
+      adminPost<unknown>('/admin/config/video/codec', token, { value }),
     setFfmpegPath: (token: string, value: string) =>
       adminPost<unknown>('/admin/config/ffmpegpath', token, { value }),
     setRTMPPort: (token: string, value: number) =>
