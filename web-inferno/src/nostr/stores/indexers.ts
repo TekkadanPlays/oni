@@ -79,20 +79,8 @@ async function doDiscover(count: number): Promise<void> {
   state = { ...state, isLoading: true, error: null };
   notify();
 
-  // 1. Try rstate API (fast, production only)
-  try {
-    const urls = await fetchFromRstate(count);
-    if (urls.length > 0) {
-      console.log('[indexers] Discovered', urls.length, 'relays via rstate');
-      state = { urls, source: 'rstate', isLoading: false, error: null };
-      notify();
-      return;
-    }
-  } catch (err) {
-    console.warn('[indexers] rstate unavailable:', err);
-  }
-
-  // 2. Instant fallback
+  // Use well-known fallback indexers immediately — no rstate API call
+  // (rstate only works when co-hosted with nostr.watch, not standalone Oni)
   console.log('[indexers] Using fallback indexers');
   state = {
     urls: FALLBACK_INDEXERS.slice(0, count),
@@ -102,7 +90,7 @@ async function doDiscover(count: number): Promise<void> {
   };
   notify();
 
-  // 3. Background NIP-66 upgrade (non-blocking)
+  // Background NIP-66 upgrade (non-blocking)
   upgradeViaNip66(count);
 }
 
@@ -118,7 +106,7 @@ async function fetchFromRstate(count: number): Promise<string[]> {
       sortOrder: 'desc',
       format: 'detailed',
     });
-    const res = await fetch(`/relays?${params}`, {
+    const res = await fetch(`https://api.nostr.watch/v1/online`, {
       signal: controller.signal,
     });
 

@@ -6,6 +6,9 @@ export interface RelayProfile {
   name: string;
   relays: string[];
   builtin?: boolean;
+  enabled?: boolean;
+  // Per-relay enabled state for custom profiles (key = relay url)
+  relayEnabled?: Record<string, boolean>;
 }
 
 export interface RelayManagerState {
@@ -18,9 +21,9 @@ type Listener = () => void;
 const STORAGE_KEY = 'oni_relay_profiles';
 
 const DEFAULT_PROFILES: RelayProfile[] = [
-  { id: 'outbox', name: 'Outbox', relays: [], builtin: true },
-  { id: 'inbox', name: 'Inbox', relays: [], builtin: true },
-  { id: 'indexers', name: 'Indexers', relays: [], builtin: true },
+  { id: 'outbox', name: 'Outbox', relays: [], builtin: true, enabled: true, relayEnabled: {} },
+  { id: 'inbox', name: 'Inbox', relays: [], builtin: true, enabled: true, relayEnabled: {} },
+  { id: 'indexers', name: 'Indexers', relays: [], builtin: true, enabled: true, relayEnabled: {} },
 ];
 
 let state: RelayManagerState = {
@@ -50,11 +53,13 @@ export function loadRelayManager() {
       const merged: RelayProfile[] = [];
       for (const def of DEFAULT_PROFILES) {
         const saved_profile = saved.profiles.find((p) => p.id === def.id);
-        merged.push(saved_profile ? { ...saved_profile, builtin: true } : { ...def });
+        merged.push(saved_profile
+        ? { ...saved_profile, builtin: true, enabled: saved_profile.enabled !== false, relayEnabled: saved_profile.relayEnabled || {} }
+        : { ...def });
       }
       for (const p of saved.profiles) {
         if (!builtinIds.has(p.id)) {
-          merged.push({ ...p, builtin: false });
+          merged.push({ ...p, builtin: false, enabled: p.enabled !== false, relayEnabled: p.relayEnabled || {} });
         }
       }
       state = {
@@ -132,11 +137,46 @@ export function createProfile(name: string): string {
   const id = 'custom_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
   state = {
     ...state,
-    profiles: [...state.profiles, { id, name, relays: [], builtin: false }],
+    profiles: [...state.profiles, { id, name, relays: [], builtin: false, enabled: true, relayEnabled: {} }],
   };
   persist();
   notify();
   return id;
+}
+
+export function toggleProfileEnabled(profileId: string) {
+  state = {
+    ...state,
+    profiles: state.profiles.map((p) =>
+      p.id === profileId ? { ...p, enabled: !p.enabled } : p,
+    ),
+  };
+  persist();
+  notify();
+}
+
+export function setRelayEnabled(profileId: string, url: string, enabled: boolean) {
+  state = {
+    ...state,
+    profiles: state.profiles.map((p) => {
+      if (p.id !== profileId) return p;
+      const relayEnabled = { ...(p.relayEnabled || {}) };
+      relayEnabled[url] = enabled;
+      return { ...p, relayEnabled };
+    }),
+  };
+  persist();
+  notify();
+}
+
+export function isRelayEnabled(profile: RelayProfile, url: string): boolean {
+  if (!profile.relayEnabled) return true;
+  return profile.relayEnabled[url] !== false;
+}
+
+export function getEnabledRelayCount(profile: RelayProfile): number {
+  if (!profile.enabled) return 0;
+  return profile.relays.filter((url) => isRelayEnabled(profile, url)).length;
 }
 
 export function renameProfile(profileId: string, name: string) {

@@ -189,7 +189,7 @@ function queryIndexers(pubkey: string, indexerUrls: string[]): Promise<void> {
   return new Promise<void>((resolve) => {
     let responded = 0;
     const total = indexerUrls.length;
-    const timeout = setTimeout(() => finish(), 8000);
+    const timeout = setTimeout(() => finish(), 15000);
 
     function finish() {
       clearTimeout(timeout);

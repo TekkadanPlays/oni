@@ -2,6 +2,7 @@ import { hasNip07, getNip07PublicKey } from '../nip07';
 import { isAndroid, requestPublicKey as nip55RequestPubkey, parseNip55Callback, clearNip55Callback } from '../nip55';
 import { getPool } from './relay';
 import { resetRelayManager } from './relaymanager';
+import { resetBootstrap } from './bootstrap';
 
 export interface AuthState {
   pubkey: string | null;
@@ -67,6 +68,7 @@ export async function login(): Promise<void> {
  * Reset all per-user stores. Called on sign-out and before account switch.
  */
 export function resetAllStores(): void {
+  resetBootstrap();
   getPool().clearSeenEvents();
   resetRelayManager();
 }
