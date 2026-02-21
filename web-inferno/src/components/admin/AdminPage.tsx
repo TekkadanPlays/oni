@@ -11,7 +11,15 @@ import { LogsTab } from './LogsTab';
 import { AccessTokensTab } from './AccessTokensTab';
 import { RelayManagerTab } from './RelayManagerTab';
 import { NostrSettingsTab } from './NostrSettingsTab';
-import { getAuthState, subscribeAuth, login, restoreSession } from '../../nostr/stores/auth';
+import { getAuthState, subscribeAuth, login, restoreSession, resetAllStores } from '../../nostr/stores/auth';
+import { loadRelayManager, syncPoolToActiveProfile } from '../../nostr/stores/relaymanager';
+import { discoverIndexers } from '../../nostr/stores/indexers';
+import { connectRelays, getPool } from '../../nostr/stores/relay';
+import { bootstrapUser } from '../../nostr/stores/bootstrap';
+import { signWithExtension } from '../../nostr/nip07';
+import { loadLiveEventsEnabled } from '../../nostr/stores/liveevents';
+import { discoverBroadcastRelays } from '../../nostr/stores/broadcast';
+import { initTheme } from '../../stores/theme';
 
 interface AdminPageState {
   activeTab: AdminTab;
@@ -24,6 +32,7 @@ interface AdminPageState {
 
 export class AdminPage extends Component<{}, AdminPageState> {
   private unsubAuth: (() => void) | null = null;
+  private lastPubkey: string | null = null;
 
   state: AdminPageState = {
     activeTab: 'overview',
@@ -35,18 +44,59 @@ export class AdminPage extends Component<{}, AdminPageState> {
   };
 
   componentDidMount() {
+    initTheme();
+
+    // Initialize Nostr identity system (same as main App)
+    loadRelayManager();
+    syncPoolToActiveProfile();
+    loadLiveEventsEnabled();
+
+    // Start indexer discovery early
+    discoverIndexers(10).catch((err) =>
+      console.warn('[oni-admin] Indexer discovery error:', err)
+    );
+
+    // Start broadcast relay discovery
+    discoverBroadcastRelays(20);
+
+    // Restore session and connect relays
     restoreSession();
+    this.updateAuthSigner();
     this.unsubAuth = subscribeAuth(() => this.onAuthChange());
-    this.onAuthChange();
+    connectRelays().then(() => {
+      this.onAuthChange();
+    }).catch((err) => console.warn('[oni-admin] Relay connect error:', err));
   }
 
   componentWillUnmount() {
     this.unsubAuth?.();
   }
 
+  private updateAuthSigner() {
+    const auth = getAuthState();
+    const pool = getPool();
+    if (auth.pubkey) {
+      pool.setAuthSigner((unsigned) => signWithExtension(unsigned));
+    } else {
+      pool.setAuthSigner(null);
+    }
+  }
+
   private async onAuthChange() {
     const auth = getAuthState();
+    this.updateAuthSigner();
+
+    // Detect account switch
+    if (auth.pubkey && this.lastPubkey && auth.pubkey !== this.lastPubkey) {
+      resetAllStores();
+    }
+    this.lastPubkey = auth.pubkey;
+
     if (auth.pubkey) {
+      // Bootstrap the Nostr identity (fetches kind 10002, profile, contacts)
+      bootstrapUser(auth.pubkey).catch((err) =>
+        console.warn('[oni-admin] Bootstrap error:', err)
+      );
       await this.verifyBearerToken(auth.pubkey);
     } else if (!auth.isLoading) {
       this.setState({ authChecking: false });
