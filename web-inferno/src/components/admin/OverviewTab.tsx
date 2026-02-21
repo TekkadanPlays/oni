@@ -1,11 +1,57 @@
 import { Component, Fragment } from 'inferno';
 import { createElement } from 'inferno-create-element';
-import { Alert, AlertDescription, Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, Badge, Progress, Separator, Skeleton } from 'blazecn';
+import { Alert, AlertDescription, Card, CardHeader, CardTitle, CardDescription, CardContent, Badge, Separator, Skeleton } from 'blazecn';
 import { cn } from 'blazecn';
+import { Chart, LineController, LineElement, PointElement, LinearScale, CategoryScale, Filler, DoughnutController, ArcElement, Tooltip as ChartTooltip, Legend } from 'chart.js';
 import { api } from '../../api';
 import { formatRelativeTime } from '../../utils';
 
-// Inline SVG icons — small, consistent size-4
+Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Filler, DoughnutController, ArcElement, ChartTooltip, Legend);
+
+const MAX_HISTORY = 60;
+
+// ── Helpers ──
+function getCSSVar(name: string): string {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+function themeColor(opacity = 1): string {
+  const raw = getCSSVar('--color-primary');
+  if (!raw) return `rgba(139,92,246,${opacity})`;
+  return `oklch(${raw} / ${opacity})`;
+}
+
+function mutedColor(opacity = 1): string {
+  const raw = getCSSVar('--color-muted');
+  if (!raw) return `rgba(100,100,100,${opacity})`;
+  return `oklch(${raw} / ${opacity})`;
+}
+
+function destructiveColor(opacity = 1): string {
+  const raw = getCSSVar('--color-destructive');
+  if (!raw) return `rgba(239,68,68,${opacity})`;
+  return `oklch(${raw} / ${opacity})`;
+}
+
+function warningColor(opacity = 1): string {
+  const raw = getCSSVar('--color-warning');
+  if (!raw) return `rgba(234,179,8,${opacity})`;
+  return `oklch(${raw} / ${opacity})`;
+}
+
+function successColor(opacity = 1): string {
+  const raw = getCSSVar('--color-success');
+  if (!raw) return `rgba(34,197,94,${opacity})`;
+  return `oklch(${raw} / ${opacity})`;
+}
+
+function gaugeColor(percent: number, opacity = 1): string {
+  if (percent > 90) return destructiveColor(opacity);
+  if (percent > 70) return warningColor(opacity);
+  return successColor(opacity);
+}
+
+// ── Icons ──
 const IconClock = () => (
   <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
@@ -21,21 +67,6 @@ const IconTrendingUp = () => (
     <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" />
   </svg>
 );
-const IconCpu = () => (
-  <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <rect x="4" y="4" width="16" height="16" rx="2" ry="2" /><rect x="9" y="9" width="6" height="6" /><line x1="9" y1="1" x2="9" y2="4" /><line x1="15" y1="1" x2="15" y2="4" /><line x1="9" y1="20" x2="9" y2="23" /><line x1="15" y1="20" x2="15" y2="23" /><line x1="20" y1="9" x2="23" y2="9" /><line x1="20" y1="14" x2="23" y2="14" /><line x1="1" y1="9" x2="4" y2="9" /><line x1="1" y1="14" x2="4" y2="14" />
-  </svg>
-);
-const IconMemory = () => (
-  <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <rect x="2" y="6" width="20" height="12" rx="2" /><line x1="6" y1="6" x2="6" y2="2" /><line x1="10" y1="6" x2="10" y2="2" /><line x1="14" y1="6" x2="14" y2="2" /><line x1="18" y1="6" x2="18" y2="2" />
-  </svg>
-);
-const IconHardDrive = () => (
-  <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <line x1="22" y1="12" x2="2" y2="12" /><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" /><line x1="6" y1="16" x2="6.01" y2="16" /><line x1="10" y1="16" x2="10.01" y2="16" />
-  </svg>
-);
 const IconPlay = () => (
   <svg class="size-8 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
     <polygon points="5 3 19 12 5 21 5 3" />
@@ -47,16 +78,36 @@ interface OverviewState {
   hardware: any;
   loading: boolean;
   error: string | null;
+  viewerHistory: number[];
+  cpuHistory: number[];
+  memHistory: number[];
+  diskHistory: number[];
+  labels: string[];
 }
 
 export class OverviewTab extends Component<{ token: string }, OverviewState> {
   private pollTimer: ReturnType<typeof setInterval> | null = null;
+  private viewerChart: Chart | null = null;
+  private cpuGauge: Chart | null = null;
+  private memGauge: Chart | null = null;
+  private diskGauge: Chart | null = null;
+  private resourceChart: Chart | null = null;
+  private viewerCanvasRef: HTMLCanvasElement | null = null;
+  private cpuCanvasRef: HTMLCanvasElement | null = null;
+  private memCanvasRef: HTMLCanvasElement | null = null;
+  private diskCanvasRef: HTMLCanvasElement | null = null;
+  private resourceCanvasRef: HTMLCanvasElement | null = null;
 
   state: OverviewState = {
     status: null,
     hardware: null,
     loading: true,
     error: null,
+    viewerHistory: [],
+    cpuHistory: [],
+    memHistory: [],
+    diskHistory: [],
+    labels: [],
   };
 
   componentDidMount() {
@@ -66,6 +117,15 @@ export class OverviewTab extends Component<{ token: string }, OverviewState> {
 
   componentWillUnmount() {
     if (this.pollTimer) clearInterval(this.pollTimer);
+    this.destroyCharts();
+  }
+
+  private destroyCharts() {
+    this.viewerChart?.destroy(); this.viewerChart = null;
+    this.cpuGauge?.destroy(); this.cpuGauge = null;
+    this.memGauge?.destroy(); this.memGauge = null;
+    this.diskGauge?.destroy(); this.diskGauge = null;
+    this.resourceChart?.destroy(); this.resourceChart = null;
   }
 
   private async loadData() {
@@ -74,12 +134,236 @@ export class OverviewTab extends Component<{ token: string }, OverviewState> {
         api.admin.getStatus(this.props.token),
         api.admin.getHardware(this.props.token).catch(() => null),
       ]);
-      this.setState({ status, hardware, loading: false, error: null });
+
+      const s = status as any;
+      const hw = hardware as any;
+      const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+      const viewerHistory = [...this.state.viewerHistory, s?.viewerCount || 0].slice(-MAX_HISTORY);
+      const cpuPercent = hw?.cpu?.[0]?.percent != null ? Math.round(hw.cpu[0].percent) : 0;
+      const memPercent = hw?.memory ? Math.round(hw.memory.percent) : 0;
+      const diskPercent = hw?.disk ? Math.round(hw.disk.percent) : 0;
+      const cpuHistory = [...this.state.cpuHistory, cpuPercent].slice(-MAX_HISTORY);
+      const memHistory = [...this.state.memHistory, memPercent].slice(-MAX_HISTORY);
+      const diskHistory = [...this.state.diskHistory, diskPercent].slice(-MAX_HISTORY);
+      const labels = [...this.state.labels, now].slice(-MAX_HISTORY);
+
+      this.setState({
+        status, hardware, loading: false, error: null,
+        viewerHistory, cpuHistory, memHistory, diskHistory, labels,
+      }, () => {
+        this.updateCharts();
+      });
     } catch (err) {
       this.setState({
         error: err instanceof Error ? err.message : 'Failed to load',
         loading: false,
       });
+    }
+  }
+
+  private updateCharts() {
+    const { viewerHistory, cpuHistory, memHistory, diskHistory, labels, status, hardware } = this.state;
+    const s = status as any;
+    const online = s?.online || false;
+
+    // ── Viewer count line chart ──
+    if (online && this.viewerCanvasRef) {
+      if (!this.viewerChart) {
+        this.viewerChart = new Chart(this.viewerCanvasRef, {
+          type: 'line',
+          data: {
+            labels,
+            datasets: [{
+              label: 'Viewers',
+              data: viewerHistory,
+              borderColor: themeColor(1),
+              backgroundColor: themeColor(0.1),
+              borderWidth: 2,
+              fill: true,
+              tension: 0.4,
+              pointRadius: 0,
+              pointHoverRadius: 4,
+              pointHoverBackgroundColor: themeColor(1),
+            }],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: { duration: 300 },
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: 'rgba(0,0,0,0.8)',
+                titleFont: { size: 11 },
+                bodyFont: { size: 11 },
+                padding: 8,
+                cornerRadius: 6,
+              },
+            },
+            scales: {
+              x: {
+                display: true,
+                grid: { color: mutedColor(0.1) },
+                ticks: { color: mutedColor(0.5), font: { size: 9 }, maxTicksLimit: 8 },
+              },
+              y: {
+                display: true,
+                beginAtZero: true,
+                grid: { color: mutedColor(0.1) },
+                ticks: {
+                  color: mutedColor(0.5),
+                  font: { size: 10 },
+                  stepSize: 1,
+                  callback: (v: any) => Number.isInteger(v) ? v : '',
+                },
+              },
+            },
+          },
+        });
+      } else {
+        this.viewerChart.data.labels = labels;
+        this.viewerChart.data.datasets[0].data = viewerHistory;
+        this.viewerChart.update('none');
+      }
+    }
+
+    // ── Resource history line chart ──
+    if (hardware && this.resourceCanvasRef) {
+      if (!this.resourceChart) {
+        this.resourceChart = new Chart(this.resourceCanvasRef, {
+          type: 'line',
+          data: {
+            labels,
+            datasets: [
+              {
+                label: 'CPU',
+                data: cpuHistory,
+                borderColor: themeColor(0.9),
+                backgroundColor: 'transparent',
+                borderWidth: 1.5,
+                tension: 0.3,
+                pointRadius: 0,
+              },
+              {
+                label: 'Memory',
+                data: memHistory,
+                borderColor: warningColor(0.9),
+                backgroundColor: 'transparent',
+                borderWidth: 1.5,
+                tension: 0.3,
+                pointRadius: 0,
+              },
+              {
+                label: 'Disk',
+                data: diskHistory,
+                borderColor: successColor(0.9),
+                backgroundColor: 'transparent',
+                borderWidth: 1.5,
+                tension: 0.3,
+                pointRadius: 0,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: { duration: 300 },
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+              legend: {
+                display: true,
+                position: 'bottom',
+                labels: {
+                  color: mutedColor(0.7),
+                  font: { size: 10 },
+                  boxWidth: 12,
+                  boxHeight: 2,
+                  padding: 12,
+                },
+              },
+              tooltip: {
+                backgroundColor: 'rgba(0,0,0,0.8)',
+                titleFont: { size: 11 },
+                bodyFont: { size: 11 },
+                padding: 8,
+                cornerRadius: 6,
+                callbacks: { label: (ctx: any) => `${ctx.dataset.label}: ${ctx.parsed.y}%` },
+              },
+            },
+            scales: {
+              x: {
+                display: true,
+                grid: { color: mutedColor(0.1) },
+                ticks: { color: mutedColor(0.5), font: { size: 9 }, maxTicksLimit: 8 },
+              },
+              y: {
+                display: true,
+                min: 0,
+                max: 100,
+                grid: { color: mutedColor(0.1) },
+                ticks: {
+                  color: mutedColor(0.5),
+                  font: { size: 10 },
+                  stepSize: 25,
+                  callback: (v: any) => `${v}%`,
+                },
+              },
+            },
+          },
+        });
+      } else {
+        this.resourceChart.data.labels = labels;
+        this.resourceChart.data.datasets[0].data = cpuHistory;
+        this.resourceChart.data.datasets[1].data = memHistory;
+        this.resourceChart.data.datasets[2].data = diskHistory;
+        this.resourceChart.update('none');
+      }
+    }
+
+    // ── Doughnut gauges ──
+    const hw = hardware as any;
+    if (hw) {
+      const cpuPct = hw.cpu?.[0]?.percent != null ? Math.round(hw.cpu[0].percent) : 0;
+      const memPct = hw.memory ? Math.round(hw.memory.percent) : 0;
+      const diskPct = hw.disk ? Math.round(hw.disk.percent) : 0;
+      this.updateGauge('cpu', this.cpuCanvasRef, cpuPct);
+      this.updateGauge('mem', this.memCanvasRef, memPct);
+      this.updateGauge('disk', this.diskCanvasRef, diskPct);
+    }
+  }
+
+  private updateGauge(type: 'cpu' | 'mem' | 'disk', canvas: HTMLCanvasElement | null, percent: number) {
+    if (!canvas) return;
+    const chartRef = type === 'cpu' ? 'cpuGauge' : type === 'mem' ? 'memGauge' : 'diskGauge';
+    const existing = this[chartRef];
+
+    if (!existing) {
+      (this as any)[chartRef] = new Chart(canvas, {
+        type: 'doughnut',
+        data: {
+          datasets: [{
+            data: [percent, 100 - percent],
+            backgroundColor: [gaugeColor(percent, 0.8), mutedColor(0.15)],
+            borderWidth: 0,
+            borderRadius: 4,
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          cutout: '75%',
+          rotation: -90,
+          circumference: 180,
+          animation: { duration: 400, easing: 'easeOutQuart' },
+          plugins: { legend: { display: false }, tooltip: { enabled: false } },
+        },
+      });
+    } else {
+      existing.data.datasets[0].data = [percent, 100 - percent];
+      existing.data.datasets[0].backgroundColor = [gaugeColor(percent, 0.8), mutedColor(0.15)];
+      existing.update('none');
     }
   }
 
@@ -92,7 +376,7 @@ export class OverviewTab extends Component<{ token: string }, OverviewState> {
 
     return (
       <div class="space-y-6">
-        {/* Stat cards — proper blazecn Card with CardHeader */}
+        {/* Stat cards */}
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <Card>
             <CardHeader>
@@ -125,7 +409,20 @@ export class OverviewTab extends Component<{ token: string }, OverviewState> {
           </Card>
         </div>
 
-        {/* Stream details + Hardware — 2 column */}
+        {/* Viewer chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Viewers Over Time</CardTitle>
+            <CardDescription>Real-time viewer count · updates every 5s</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div style={{ height: '220px' }}>
+              <canvas ref={(el: HTMLCanvasElement | null) => { this.viewerCanvasRef = el; }} />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Stream details + Gauges */}
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Inbound stream */}
           <Card>
@@ -165,9 +462,24 @@ export class OverviewTab extends Component<{ token: string }, OverviewState> {
             </CardContent>
           </Card>
 
-          {/* Hardware */}
-          {this.renderHardwareCard()}
+          {/* Hardware gauges */}
+          {this.renderHardwareGauges()}
         </div>
+
+        {/* Resource history chart */}
+        {this.state.hardware && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Resource History</CardTitle>
+              <CardDescription>CPU, memory, and disk usage over time</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div style={{ height: '200px' }}>
+                <canvas ref={(el: HTMLCanvasElement | null) => { this.resourceCanvasRef = el; }} />
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     );
   }
@@ -177,7 +489,7 @@ export class OverviewTab extends Component<{ token: string }, OverviewState> {
 
     return (
       <div class="space-y-6">
-        {/* Offline empty state — using blazecn Empty pattern */}
+        {/* Offline empty state */}
         <Card>
           <CardContent className="py-12">
             <div class="flex flex-col items-center text-center">
@@ -186,7 +498,7 @@ export class OverviewTab extends Component<{ token: string }, OverviewState> {
               </div>
               <h3 class="text-lg font-semibold">No active stream</h3>
               <p class="text-sm text-muted-foreground mt-1 mb-2 max-w-sm">
-                Start streaming to see your dashboard come alive with real-time stats.
+                Start streaming to see your dashboard come alive with real-time charts and stats.
               </p>
               {lastDisconnect && (
                 <Badge variant="outline" className="mt-1">
@@ -223,56 +535,76 @@ export class OverviewTab extends Component<{ token: string }, OverviewState> {
           </Card>
         </div>
 
-        {/* Hardware even when offline */}
-        {this.renderHardwareCard()}
+        {/* Hardware gauges even when offline */}
+        {this.renderHardwareGauges()}
+
+        {/* Resource history chart even when offline */}
+        {this.state.hardware && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Resource History</CardTitle>
+              <CardDescription>CPU, memory, and disk usage over time</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div style={{ height: '200px' }}>
+                <canvas ref={(el: HTMLCanvasElement | null) => { this.resourceCanvasRef = el; }} />
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     );
   }
 
-  private renderHardwareCard() {
+  private renderHardwareGauges() {
     const { hardware } = this.state;
     if (!hardware) return null;
 
     const hw = hardware as any;
-    const cpuPercent = hw.cpu?.[0]?.percent != null ? Math.round(hw.cpu[0].percent) : (hw.memory ? Math.round(hw.memory.percent) : 0);
+    const cpuPercent = hw.cpu?.[0]?.percent != null ? Math.round(hw.cpu[0].percent) : 0;
     const memPercent = hw.memory ? Math.round(hw.memory.percent) : 0;
     const diskPercent = hw.disk ? Math.round(hw.disk.percent) : 0;
 
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Hardware</CardTitle>
-          <CardDescription>Server resource utilization</CardDescription>
+          <CardTitle>System Resources</CardTitle>
+          <CardDescription>
+            {hw.cpu?.[0]?.modelName || 'Server hardware'}
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <div class="space-y-4">
-            {hw.cpu?.[0] && (
-              <div>
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-sm text-muted-foreground flex items-center gap-2"><IconCpu /> {hw.cpu[0].modelName || 'CPU'}</span>
-                  <span class={cn('text-sm font-medium tabular-nums', cpuPercent > 90 ? 'text-destructive' : '')}>{cpuPercent}%</span>
+          <div class="grid grid-cols-3 gap-4">
+            {/* CPU gauge */}
+            <div class="flex flex-col items-center">
+              <div class="relative" style={{ width: '100px', height: '60px' }}>
+                <canvas ref={(el: HTMLCanvasElement | null) => { this.cpuCanvasRef = el; }} />
+                <div class="absolute inset-x-0 bottom-0 text-center">
+                  <span class={cn('text-lg font-bold tabular-nums', cpuPercent > 90 ? 'text-destructive' : '')}>{cpuPercent}%</span>
                 </div>
-                <Progress value={cpuPercent} />
               </div>
-            )}
-            {hw.memory && (
-              <div>
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-sm text-muted-foreground flex items-center gap-2"><IconMemory /> Memory</span>
-                  <span class={cn('text-sm font-medium tabular-nums', memPercent > 90 ? 'text-destructive' : '')}>{memPercent}%</span>
+              <span class="text-xs text-muted-foreground mt-1">CPU</span>
+            </div>
+            {/* Memory gauge */}
+            <div class="flex flex-col items-center">
+              <div class="relative" style={{ width: '100px', height: '60px' }}>
+                <canvas ref={(el: HTMLCanvasElement | null) => { this.memCanvasRef = el; }} />
+                <div class="absolute inset-x-0 bottom-0 text-center">
+                  <span class={cn('text-lg font-bold tabular-nums', memPercent > 90 ? 'text-destructive' : '')}>{memPercent}%</span>
                 </div>
-                <Progress value={memPercent} />
               </div>
-            )}
-            {hw.disk && (
-              <div>
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-sm text-muted-foreground flex items-center gap-2"><IconHardDrive /> Disk</span>
-                  <span class={cn('text-sm font-medium tabular-nums', diskPercent > 90 ? 'text-destructive' : '')}>{diskPercent}%</span>
+              <span class="text-xs text-muted-foreground mt-1">Memory</span>
+            </div>
+            {/* Disk gauge */}
+            <div class="flex flex-col items-center">
+              <div class="relative" style={{ width: '100px', height: '60px' }}>
+                <canvas ref={(el: HTMLCanvasElement | null) => { this.diskCanvasRef = el; }} />
+                <div class="absolute inset-x-0 bottom-0 text-center">
+                  <span class={cn('text-lg font-bold tabular-nums', diskPercent > 90 ? 'text-destructive' : '')}>{diskPercent}%</span>
                 </div>
-                <Progress value={diskPercent} />
               </div>
-            )}
+              <span class="text-xs text-muted-foreground mt-1">Disk</span>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -291,6 +623,7 @@ export class OverviewTab extends Component<{ token: string }, OverviewState> {
             <Skeleton className="h-24 rounded-xl" />
             <Skeleton className="h-24 rounded-xl" />
           </div>
+          <Skeleton className="h-64 rounded-xl" />
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <Skeleton className="h-48 rounded-xl" />
             <Skeleton className="h-48 rounded-xl" />

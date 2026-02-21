@@ -3,6 +3,7 @@ import { createElement } from 'inferno-create-element';
 import {
   Button, Badge, Card, CardHeader, CardTitle, CardDescription, CardContent,
   Alert, AlertDescription, Skeleton, Separator,
+  Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
 } from 'blazecn';
 import { cn } from 'blazecn';
 import { api } from '../../api';
@@ -169,49 +170,50 @@ export class ViewersTab extends Component<{ token: string }, ViewersTabState> {
                 <p class="text-xs text-muted-foreground mt-1">Viewers will appear here when someone watches your stream.</p>
               </div>
             ) : (
-              <div class="rounded-lg border border-border/40 overflow-hidden">
-                {/* Header */}
-                <div class="grid grid-cols-12 gap-2 px-3 py-2 bg-muted/30 text-[10px] uppercase tracking-wider text-muted-foreground/50 font-semibold">
-                  <div class="col-span-4">User</div>
-                  <div class="col-span-3">Connected</div>
-                  <div class="col-span-3">Location</div>
-                  <div class="col-span-2">Client</div>
-                </div>
-                {viewers.map((viewer: any, i: number) => (
-                  <div
-                    key={viewer.id || viewer.clientID || i}
-                    class={cn(
-                      'grid grid-cols-12 gap-2 px-3 py-2.5 items-center',
-                      i % 2 === 0 ? 'bg-background' : 'bg-muted/10'
-                    )}
-                  >
-                    <div class="col-span-4 flex items-center gap-2 min-w-0">
-                      <IconUser />
-                      <div class="min-w-0">
-                        <p class="text-xs text-foreground truncate">
-                          {viewer.displayName || viewer.username || 'Anonymous'}
-                        </p>
-                        {viewer.messageCount != null && viewer.messageCount > 0 && (
-                          <p class="text-[10px] text-muted-foreground">{viewer.messageCount} messages</p>
-                        )}
-                      </div>
-                    </div>
-                    <div class="col-span-3 flex items-center gap-1 text-xs text-muted-foreground">
-                      <IconClock />
-                      {viewer.connectedAt ? formatRelativeTime(viewer.connectedAt) : viewer.createdAt ? formatRelativeTime(viewer.createdAt) : '—'}
-                    </div>
-                    <div class="col-span-3 flex items-center gap-1 text-xs text-muted-foreground">
-                      <IconGlobe />
-                      <span class="truncate">{viewer.geo || '—'}</span>
-                    </div>
-                    <div class="col-span-2">
-                      <span class="text-[10px] text-muted-foreground/60 truncate block">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>User</TableHead>
+                    <TableHead>Connected</TableHead>
+                    <TableHead>Location</TableHead>
+                    <TableHead>Client</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {viewers.map((viewer: any, i: number) => (
+                    <TableRow key={viewer.id || viewer.clientID || i}>
+                      <TableCell>
+                        <div class="flex items-center gap-2 min-w-0">
+                          <IconUser />
+                          <div class="min-w-0">
+                            <p class="text-sm truncate">
+                              {viewer.displayName || viewer.username || 'Anonymous'}
+                            </p>
+                            {viewer.messageCount != null && viewer.messageCount > 0 && (
+                              <p class="text-xs text-muted-foreground">{viewer.messageCount} messages</p>
+                            )}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        <div class="flex items-center gap-1">
+                          <IconClock />
+                          {viewer.connectedAt ? formatRelativeTime(viewer.connectedAt) : viewer.createdAt ? formatRelativeTime(viewer.createdAt) : '—'}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        <div class="flex items-center gap-1">
+                          <IconGlobe />
+                          <span class="truncate">{viewer.geo || '—'}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground text-xs">
                         {viewer.userAgent ? shortenUA(viewer.userAgent) : '—'}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             )}
           </CardContent>
         </Card>

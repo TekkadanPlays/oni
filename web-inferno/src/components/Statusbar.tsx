@@ -36,7 +36,7 @@ export class Statusbar extends Component<{}, StatusbarState> {
     const tags = config?.tags || [];
 
     return (
-      <div class="px-5 py-3.5 border-b border-border bg-card/40">
+      <div class="px-5 py-3.5 border-b border-border/50 bg-card">
         <div class="flex items-start justify-between gap-4">
           <div class="min-w-0 flex-1">
             {title && (

@@ -38,7 +38,7 @@ export class ChatInput extends Component<ChatInputProps, ChatInputState> {
 
     return (
       <form
-        class="flex items-center gap-2 p-3 border-t border-border bg-card/60"
+        class="flex items-center gap-2 p-3 border-t border-border/50 bg-card"
         onSubmit={this.handleSubmit}
       >
         <Input

@@ -40,7 +40,7 @@ export class ChatRegistration extends Component<{}, ChatRegistrationState> {
     const { name, loading, error } = this.state;
 
     return (
-      <div class="p-3 border-t border-border bg-card/60">
+      <div class="p-3 border-t border-border/50 bg-card">
         <form onSubmit={this.handleSubmit}>
           <Label className="text-muted-foreground mb-2">Pick a name to join the chat</Label>
           <div class="flex items-center gap-2">

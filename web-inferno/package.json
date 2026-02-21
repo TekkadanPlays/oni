@@ -8,16 +8,17 @@
     "dev:server": "bun run dev-server.ts"
   },
   "dependencies": {
+    "@noble/curves": "1.9.0",
+    "@noble/hashes": "1.7.2",
+    "@scure/base": "1.2.4",
+    "blazecn": "github:TekkadanPlays/blazecn",
+    "chart.js": "^4.5.1",
+    "class-variance-authority": "0.7.1",
+    "clsx": "2.1.1",
+    "hls.js": "1.5.18",
     "inferno": "9.0.11",
     "inferno-create-element": "9.0.11",
-    "hls.js": "1.5.18",
-    "clsx": "2.1.1",
-    "tailwind-merge": "3.4.0",
-    "class-variance-authority": "0.7.1",
-    "@noble/hashes": "1.7.2",
-    "@noble/curves": "1.9.0",
-    "@scure/base": "1.2.4",
-    "blazecn": "github:TekkadanPlays/blazecn"
+    "tailwind-merge": "3.4.0"
   },
   "devDependencies": {
     "@tailwindcss/cli": "4.1.18",

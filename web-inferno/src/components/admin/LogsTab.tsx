@@ -2,7 +2,7 @@ import { Component } from 'inferno';
 import { createElement } from 'inferno-create-element';
 import {
   Button, Badge, Card, CardHeader, CardTitle, CardContent,
-  Alert, AlertDescription, Skeleton, Separator,
+  Alert, AlertDescription, Skeleton, Separator, Input, Switch,
 } from 'blazecn';
 import { cn } from 'blazecn';
 import { api } from '../../api';
@@ -233,22 +233,19 @@ export class LogsTab extends Component<{ token: string }, LogsTabState> {
             ))}
           </div>
           <Separator orientation="vertical" className="h-5" />
-          <input
-            type="text"
-            class="h-7 px-2 text-xs bg-background border border-border/40 rounded-md text-foreground placeholder:text-muted-foreground/40 flex-1 max-w-xs outline-none focus:border-primary/50"
+          <Input
+            className="h-7 text-xs flex-1 max-w-xs"
             placeholder="Search logs..."
             value={search}
             onInput={(e: Event) => this.setState({ search: (e.target as HTMLInputElement).value })}
           />
-          <label class="flex items-center gap-1.5 text-[10px] text-muted-foreground cursor-pointer select-none">
-            <input
-              type="checkbox"
+          <div class="flex items-center gap-1.5">
+            <Switch
               checked={autoScroll}
-              class="accent-primary"
-              onChange={(e: Event) => this.setState({ autoScroll: (e.target as HTMLInputElement).checked })}
+              onChange={(checked: boolean) => this.setState({ autoScroll: checked })}
             />
-            Auto-scroll
-          </label>
+            <span class="text-[10px] text-muted-foreground select-none">Auto-scroll</span>
+          </div>
         </div>
 
         {/* Log entries */}
