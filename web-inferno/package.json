@@ -23,6 +23,7 @@
   "devDependencies": {
     "@tailwindcss/cli": "4.1.18",
     "tailwindcss": "4.1.18",
-    "typescript": "5.7.3"
+    "typescript": "5.7.3",
+    "@types/bun": "latest"
   }
 }

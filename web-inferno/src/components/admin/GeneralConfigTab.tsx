@@ -3,35 +3,46 @@ import { createElement } from 'inferno-create-element';
 import { Input, Textarea, Label, Switch, Button, Alert, AlertDescription, Card, CardHeader, CardTitle, CardDescription, CardContent, Separator, Badge, Skeleton, toast } from 'blazecn';
 import { api } from '../../api';
 
+interface SocialHandle {
+  platform: string;
+  url: string;
+}
+
 interface GeneralConfigState {
-  config: any;
   loading: boolean;
   saving: boolean;
   error: string | null;
-  success: string | null;
   name: string;
-  title: string;
+  streamTitle: string;
   summary: string;
-  logo: string;
   tags: string;
+  serverURL: string;
   offlineMessage: string;
+  welcomeMessage: string;
+  extraPageContent: string;
   nsfw: boolean;
+  socialHandles: SocialHandle[];
+  newSocialPlatform: string;
+  newSocialURL: string;
 }
 
 export class GeneralConfigTab extends Component<{ token: string }, GeneralConfigState> {
   state: GeneralConfigState = {
-    config: null,
     loading: true,
     saving: false,
     error: null,
-    success: null,
     name: '',
-    title: '',
+    streamTitle: '',
     summary: '',
-    logo: '',
     tags: '',
+    serverURL: '',
     offlineMessage: '',
+    welcomeMessage: '',
+    extraPageContent: '',
     nsfw: false,
+    socialHandles: [],
+    newSocialPlatform: '',
+    newSocialURL: '',
   };
 
   componentDidMount() {
@@ -43,15 +54,17 @@ export class GeneralConfigTab extends Component<{ token: string }, GeneralConfig
       const config = await api.admin.getConfig(this.props.token) as any;
       const details = config?.instanceDetails || {};
       this.setState({
-        config,
         loading: false,
         name: details.name || '',
-        title: details.title || '',
+        streamTitle: details.streamTitle || '',
         summary: details.summary || '',
-        logo: details.logo || '',
         tags: (details.tags || []).join(', '),
+        serverURL: config?.yp?.instanceUrl || '',
         offlineMessage: details.offlineMessage || '',
+        welcomeMessage: details.welcomeMessage || '',
+        extraPageContent: details.extraPageContent || '',
         nsfw: details.nsfw || false,
+        socialHandles: details.socialHandles || [],
       });
     } catch (err) {
       this.setState({
@@ -62,27 +75,27 @@ export class GeneralConfigTab extends Component<{ token: string }, GeneralConfig
   }
 
   private handleSave = async () => {
-    this.setState({ saving: true, error: null, success: null });
+    this.setState({ saving: true, error: null });
     try {
       const tagsArray = this.state.tags
         .split(',')
         .map((t: string) => t.trim())
         .filter(Boolean);
 
-      await api.admin.updateConfig(this.props.token, {
-        instanceDetails: {
-          name: this.state.name,
-          title: this.state.title,
-          summary: this.state.summary,
-          logo: this.state.logo,
-          tags: tagsArray,
-          offlineMessage: this.state.offlineMessage,
-          nsfw: this.state.nsfw,
-        },
-      });
-      this.setState({ saving: false, success: 'Configuration saved.' });
+      await Promise.all([
+        api.admin.setServerName(this.props.token, this.state.name),
+        api.admin.setStreamTitle(this.props.token, this.state.streamTitle),
+        api.admin.setServerSummary(this.props.token, this.state.summary),
+        api.admin.setTags(this.props.token, tagsArray),
+        api.admin.setOfflineMessage(this.props.token, this.state.offlineMessage),
+        api.admin.setWelcomeMessage(this.props.token, this.state.welcomeMessage),
+        api.admin.setNSFW(this.props.token, this.state.nsfw),
+        api.admin.setSocialHandles(this.props.token, this.state.socialHandles),
+        this.state.serverURL ? api.admin.setServerURL(this.props.token, this.state.serverURL) : Promise.resolve(),
+        this.state.extraPageContent ? api.admin.setExtraPageContent(this.props.token, this.state.extraPageContent) : Promise.resolve(),
+      ]);
+      this.setState({ saving: false });
       toast({ title: 'Configuration saved', description: 'Your changes have been applied.' });
-      setTimeout(() => this.setState({ success: null }), 3000);
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Failed to save';
       this.setState({ saving: false, error: msg });
@@ -94,8 +107,25 @@ export class GeneralConfigTab extends Component<{ token: string }, GeneralConfig
     this.setState({ [field]: (e.target as HTMLInputElement).value } as any);
   };
 
+  private addSocialHandle = () => {
+    const platform = this.state.newSocialPlatform.trim();
+    const url = this.state.newSocialURL.trim();
+    if (!platform || !url) return;
+    this.setState({
+      socialHandles: [...this.state.socialHandles, { platform, url }],
+      newSocialPlatform: '',
+      newSocialURL: '',
+    });
+  };
+
+  private removeSocialHandle = (index: number) => {
+    this.setState({
+      socialHandles: this.state.socialHandles.filter((_, i) => i !== index),
+    });
+  };
+
   render() {
-    const { loading, saving, error, success, name, title, summary, tags, offlineMessage, nsfw } = this.state;
+    const { loading, saving, error, name, streamTitle, summary, tags, serverURL, offlineMessage, welcomeMessage, extraPageContent, nsfw, socialHandles, newSocialPlatform, newSocialURL } = this.state;
 
     if (loading) {
       return (
@@ -119,11 +149,6 @@ export class GeneralConfigTab extends Component<{ token: string }, GeneralConfig
         {error && (
           <Alert variant="destructive">
             <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-        {success && (
-          <Alert>
-            <AlertDescription className="text-success">{success}</AlertDescription>
           </Alert>
         )}
 
@@ -150,12 +175,23 @@ export class GeneralConfigTab extends Component<{ token: string }, GeneralConfig
                   <Label>Stream Title</Label>
                   <Input
                     type="text"
-                    value={title}
-                    onInput={this.handleInput('title')}
+                    value={streamTitle}
+                    onInput={this.handleInput('streamTitle')}
                     placeholder="What are you streaming?"
                   />
-                  <p class="text-xs text-muted-foreground">Shown when your stream is live.</p>
+                  <p class="text-xs text-muted-foreground">Shown when your stream is live. Can be changed while streaming.</p>
                 </div>
+              </div>
+
+              <div class="space-y-1.5">
+                <Label>Server URL</Label>
+                <Input
+                  type="text"
+                  value={serverURL}
+                  onInput={this.handleInput('serverURL')}
+                  placeholder="https://live.mycelium.social"
+                />
+                <p class="text-xs text-muted-foreground">The public URL of your Oni server. Used for federation and directory listing.</p>
               </div>
 
               <div class="space-y-1.5">
@@ -183,22 +219,91 @@ export class GeneralConfigTab extends Component<{ token: string }, GeneralConfig
           </CardContent>
         </Card>
 
-        {/* Appearance */}
+        {/* Appearance & Messages */}
         <Card>
           <CardHeader>
-            <CardTitle>Appearance</CardTitle>
-            <CardDescription>Customize what viewers see when your stream is offline.</CardDescription>
+            <CardTitle>Messages</CardTitle>
+            <CardDescription>Customize messages shown to viewers.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div class="space-y-1.5">
-              <Label>Offline Message</Label>
-              <Textarea
-                className="min-h-[80px]"
-                value={offlineMessage}
-                onInput={this.handleInput('offlineMessage')}
-                placeholder="Custom message shown when stream is offline"
+            <div class="space-y-4">
+              <div class="space-y-1.5">
+                <Label>Offline Message</Label>
+                <Textarea
+                  className="min-h-[80px]"
+                  value={offlineMessage}
+                  onInput={this.handleInput('offlineMessage')}
+                  placeholder="Custom message shown when stream is offline"
+                />
+                <p class="text-xs text-muted-foreground">Displayed to visitors when you're not streaming.</p>
+              </div>
+
+              <Separator />
+
+              <div class="space-y-1.5">
+                <Label>Welcome Message</Label>
+                <Textarea
+                  className="min-h-[80px]"
+                  value={welcomeMessage}
+                  onInput={this.handleInput('welcomeMessage')}
+                  placeholder="Welcome to the stream!"
+                />
+                <p class="text-xs text-muted-foreground">Shown to viewers when they first join the chat.</p>
+              </div>
+
+              <Separator />
+
+              <div class="space-y-1.5">
+                <Label>Extra Page Content</Label>
+                <Textarea
+                  className="min-h-[100px] font-mono text-xs"
+                  value={extraPageContent}
+                  onInput={this.handleInput('extraPageContent')}
+                  placeholder="Markdown or HTML content..."
+                />
+                <p class="text-xs text-muted-foreground">Additional content displayed below the video player. Supports Markdown.</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Social Handles */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Social Links</CardTitle>
+            <CardDescription>Links to your social profiles shown on the stream page.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {socialHandles.map((handle, i) => (
+              <div key={i} class="flex items-center gap-2">
+                <Badge variant="secondary" className="shrink-0 capitalize">{handle.platform}</Badge>
+                <span class="text-sm text-muted-foreground truncate flex-1">{handle.url}</span>
+                <Button variant="ghost" size="icon-sm" className="size-7 shrink-0 text-destructive/60 hover:text-destructive" onClick={() => this.removeSocialHandle(i)}>
+                  <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                  </svg>
+                </Button>
+              </div>
+            ))}
+            <Separator />
+            <div class="flex gap-2">
+              <Input
+                type="text"
+                className="w-32 text-xs"
+                placeholder="Platform"
+                value={newSocialPlatform}
+                onInput={(e: Event) => this.setState({ newSocialPlatform: (e.target as HTMLInputElement).value })}
               />
-              <p class="text-xs text-muted-foreground">Displayed to visitors when you're not streaming.</p>
+              <Input
+                type="text"
+                className="flex-1 text-xs"
+                placeholder="https://..."
+                value={newSocialURL}
+                onInput={(e: Event) => this.setState({ newSocialURL: (e.target as HTMLInputElement).value })}
+              />
+              <Button size="sm" onClick={this.addSocialHandle} disabled={!newSocialPlatform.trim() || !newSocialURL.trim()}>
+                Add
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -231,9 +336,6 @@ export class GeneralConfigTab extends Component<{ token: string }, GeneralConfig
           >
             {saving ? 'Saving...' : 'Save Configuration'}
           </Button>
-          {success && (
-            <Badge variant="outline" className="text-success border-success/30">Saved</Badge>
-          )}
         </div>
       </div>
     );

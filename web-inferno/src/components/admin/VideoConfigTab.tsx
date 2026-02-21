@@ -42,17 +42,27 @@ interface VideoVariant {
   cpuUsageLevel: number;
 }
 
+interface StreamKeyEntry {
+  key: string;
+  comment: string;
+}
+
 interface VideoConfigState {
   loading: boolean;
   saving: boolean;
   error: string | null;
   latencyLevel: number;
   variants: VideoVariant[];
-  streamKey: string;
-  showStreamKey: boolean;
-  newStreamKey: string;
+  streamKeys: StreamKeyEntry[];
+  showStreamKeys: Set<number>;
+  newKeyValue: string;
+  newKeyComment: string;
   rtmpPort: number;
   webPort: number;
+  serverURL: string;
+  videoCodec: string;
+  supportedCodecs: string[];
+  streamKeyOverridden: boolean;
 }
 
 const IconVideo = () => (
@@ -111,11 +121,16 @@ export class VideoConfigTab extends Component<{ token: string }, VideoConfigStat
     error: null,
     latencyLevel: 2,
     variants: [],
-    streamKey: '',
-    showStreamKey: false,
-    newStreamKey: '',
+    streamKeys: [],
+    showStreamKeys: new Set<number>(),
+    newKeyValue: '',
+    newKeyComment: '',
     rtmpPort: 1935,
     webPort: 8080,
+    serverURL: '',
+    videoCodec: '',
+    supportedCodecs: [],
+    streamKeyOverridden: false,
   };
 
   componentDidMount() {
@@ -126,13 +141,29 @@ export class VideoConfigTab extends Component<{ token: string }, VideoConfigStat
     try {
       const config = await api.admin.getConfig(this.props.token) as any;
       const vs = config?.videoSettings || {};
+      // streamKeys comes as array of {key, comment} from the Go backend
+      const rawKeys = config?.streamKeys || [];
+      const streamKeys: StreamKeyEntry[] = rawKeys.map((k: any) => ({
+        key: k.key || k.Key || '',
+        comment: k.comment || k.Comment || '',
+      }));
+      // If backend returned old single streamKey, migrate it
+      if (streamKeys.length === 0 && config?.streamKey) {
+        streamKeys.push({ key: config.streamKey, comment: 'Default' });
+      }
+      // Derive server hostname from yp.instanceUrl or window.location
+      const serverURL = config?.yp?.instanceUrl || window.location.origin;
       this.setState({
         loading: false,
         latencyLevel: vs.latencyLevel || 2,
         variants: vs.videoQualityVariants || [defaultVariant()],
-        streamKey: config?.streamKey || '',
+        streamKeys,
         rtmpPort: config?.rtmpServerPort || 1935,
         webPort: config?.webServerPort || 8080,
+        serverURL,
+        videoCodec: config?.videoCodec || '',
+        supportedCodecs: config?.supportedCodecs || [],
+        streamKeyOverridden: config?.streamKeyOverridden || false,
       });
     } catch (err) {
       this.setState({
@@ -145,12 +176,10 @@ export class VideoConfigTab extends Component<{ token: string }, VideoConfigStat
   private handleSave = async () => {
     this.setState({ saving: true, error: null });
     try {
-      await api.admin.updateConfig(this.props.token, {
-        videoSettings: {
-          latencyLevel: this.state.latencyLevel,
-          videoQualityVariants: this.state.variants,
-        },
-      });
+      await Promise.all([
+        api.admin.setStreamLatencyLevel(this.props.token, this.state.latencyLevel),
+        api.admin.setStreamOutputVariants(this.props.token, this.state.variants),
+      ]);
       this.setState({ saving: false });
       toast({ title: 'Video configuration saved', description: 'Changes will apply on next stream start.' });
     } catch (err) {
@@ -160,15 +189,53 @@ export class VideoConfigTab extends Component<{ token: string }, VideoConfigStat
     }
   };
 
-  private handleStreamKeyChange = async () => {
-    const key = this.state.newStreamKey.trim();
-    if (!key) return;
+  private handleSaveStreamKeys = async () => {
     try {
-      await api.admin.setStreamKey(this.props.token, key);
-      this.setState({ streamKey: key, newStreamKey: '' });
-      toast({ title: 'Stream key updated' });
+      await api.admin.setStreamKeys(this.props.token, this.state.streamKeys);
+      toast({ title: 'Stream keys saved' });
     } catch (err) {
-      toast({ title: 'Failed to update stream key', variant: 'destructive' });
+      toast({ title: 'Failed to save stream keys', variant: 'destructive' });
+    }
+  };
+
+  private addStreamKey = () => {
+    const key = this.state.newKeyValue.trim();
+    if (!key) return;
+    const comment = this.state.newKeyComment.trim() || `Key ${this.state.streamKeys.length + 1}`;
+    this.setState({
+      streamKeys: [...this.state.streamKeys, { key, comment }],
+      newKeyValue: '',
+      newKeyComment: '',
+    }, () => this.handleSaveStreamKeys());
+  };
+
+  private removeStreamKey = (index: number) => {
+    const streamKeys = this.state.streamKeys.filter((_, i) => i !== index);
+    this.setState({ streamKeys }, () => this.handleSaveStreamKeys());
+  };
+
+  private toggleShowKey(index: number) {
+    const s = new Set(this.state.showStreamKeys);
+    if (s.has(index)) s.delete(index); else s.add(index);
+    this.setState({ showStreamKeys: s });
+  }
+
+  private getRtmpHost(): string {
+    try {
+      const url = new URL(this.state.serverURL);
+      return url.hostname;
+    } catch {
+      return window.location.hostname;
+    }
+  }
+
+  private handleVideoCodecChange = async (codec: string) => {
+    try {
+      await api.admin.setVideoCodec(this.props.token, codec);
+      this.setState({ videoCodec: codec });
+      toast({ title: 'Video codec updated' });
+    } catch {
+      toast({ title: 'Failed to update codec', variant: 'destructive' });
     }
   };
 
@@ -399,7 +466,7 @@ export class VideoConfigTab extends Component<{ token: string }, VideoConfigStat
   }
 
   render() {
-    const { loading, saving, error, latencyLevel, variants, streamKey, showStreamKey, newStreamKey, rtmpPort } = this.state;
+    const { loading, saving, error, latencyLevel, variants, streamKeys, showStreamKeys, newKeyValue, newKeyComment, rtmpPort, serverURL, videoCodec, supportedCodecs, streamKeyOverridden } = this.state;
 
     if (loading) {
       return (
@@ -426,78 +493,124 @@ export class VideoConfigTab extends Component<{ token: string }, VideoConfigStat
           </Alert>
         )}
 
-        {/* Stream Key */}
+        {/* Stream Keys */}
         <Card>
           <CardHeader>
-            <CardTitle>Stream Key</CardTitle>
-            <CardDescription>Authenticate with your broadcasting software.</CardDescription>
+            <CardTitle>Stream Keys</CardTitle>
+            <CardDescription>Authenticate with your broadcasting software. You can have multiple keys for different devices or co-streamers.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div class="flex items-center gap-2">
-              <div class="flex-1 relative">
-                <Input
-                  type={showStreamKey ? 'text' : 'password'}
-                  value={streamKey}
-                  readOnly
-                  className="pr-20 font-mono text-xs"
-                />
-                <div class="absolute right-1 top-1/2 -translate-y-1/2 flex gap-0.5">
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    className="size-7"
-                    onClick={() => this.setState({ showStreamKey: !showStreamKey })}
-                  >
-                    {showStreamKey ? <IconEyeOff /> : <IconEye />}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    className="size-7"
-                    onClick={() => this.copyToClipboard(streamKey)}
-                  >
-                    <IconCopy />
-                  </Button>
-                </div>
-              </div>
-            </div>
+            {streamKeyOverridden && (
+              <Alert>
+                <AlertDescription>Stream key is overridden by a command-line flag. Changes here won't take effect until the flag is removed.</AlertDescription>
+              </Alert>
+            )}
 
-            <div class="rounded-xl border border-border bg-muted/30 p-4">
-              <p class="text-[11px] text-muted-foreground mb-2 font-semibold uppercase tracking-wider">RTMP URL</p>
+            {/* RTMP connection info */}
+            <div class="rounded-xl border border-border bg-muted/30 p-4 space-y-3">
+              <p class="text-[11px] text-muted-foreground font-semibold uppercase tracking-wider">RTMP URL</p>
               <div class="flex items-center gap-2">
                 <code class="text-xs text-foreground font-mono bg-background px-3 py-1.5 rounded-lg border border-border flex-1 truncate">
-                  rtmp://your-server:{rtmpPort}/live
+                  rtmp://{this.getRtmpHost()}:{rtmpPort}/live
                 </code>
                 <Button
                   variant="outline"
                   size="icon-sm"
                   className="shrink-0"
-                  onClick={() => this.copyToClipboard(`rtmp://your-server:${rtmpPort}/live`)}
+                  onClick={() => this.copyToClipboard(`rtmp://${this.getRtmpHost()}:${rtmpPort}/live`)}
                 >
                   <IconCopy />
                 </Button>
               </div>
+              <p class="text-[10px] text-muted-foreground">Use this URL in OBS → Settings → Stream → Server. Put your stream key in the "Stream Key" field.</p>
             </div>
 
-            <div class="section-divider" />
+            <Separator />
+
+            {/* Existing keys */}
+            {streamKeys.length === 0 && (
+              <Alert variant="destructive">
+                <AlertDescription>No stream keys configured. You won't be able to stream until you add at least one key.</AlertDescription>
+              </Alert>
+            )}
 
             <div class="space-y-2">
-              <Label className="text-xs font-semibold text-muted-foreground">Change Stream Key</Label>
+              {streamKeys.map((sk, i) => (
+                <div key={i} class="flex items-center gap-2 rounded-lg border border-border p-3">
+                  <div class="flex-1 min-w-0">
+                    <p class="text-xs font-medium text-muted-foreground mb-1">{sk.comment || `Key ${i + 1}`}</p>
+                    <div class="flex items-center gap-1">
+                      <code class="text-xs font-mono truncate">
+                        {showStreamKeys.has(i) ? sk.key : '••••••••••••••••'}
+                      </code>
+                    </div>
+                  </div>
+                  <Button variant="ghost" size="icon-sm" className="size-7 shrink-0" onClick={() => this.toggleShowKey(i)}>
+                    {showStreamKeys.has(i) ? <IconEyeOff /> : <IconEye />}
+                  </Button>
+                  <Button variant="ghost" size="icon-sm" className="size-7 shrink-0" onClick={() => this.copyToClipboard(sk.key)}>
+                    <IconCopy />
+                  </Button>
+                  <Button variant="ghost" size="icon-sm" className="size-7 shrink-0 text-destructive/60 hover:text-destructive" onClick={() => this.removeStreamKey(i)}>
+                    <IconTrash />
+                  </Button>
+                </div>
+              ))}
+            </div>
+
+            <Separator />
+
+            {/* Add new key */}
+            <div class="space-y-2">
+              <Label className="text-xs font-semibold text-muted-foreground">Add Stream Key</Label>
               <div class="flex gap-2">
                 <Input
                   type="text"
-                  className="flex-1 text-xs"
-                  placeholder="Enter new stream key"
-                  value={newStreamKey}
-                  onInput={(e: Event) => this.setState({ newStreamKey: (e.target as HTMLInputElement).value })}
+                  className="flex-1 text-xs font-mono"
+                  placeholder="Stream key value"
+                  value={newKeyValue}
+                  onInput={(e: Event) => this.setState({ newKeyValue: (e.target as HTMLInputElement).value })}
                 />
-                <Button size="sm" onClick={this.handleStreamKeyChange} disabled={!newStreamKey.trim()}>
-                  Update
+                <Input
+                  type="text"
+                  className="w-36 text-xs"
+                  placeholder="Label (optional)"
+                  value={newKeyComment}
+                  onInput={(e: Event) => this.setState({ newKeyComment: (e.target as HTMLInputElement).value })}
+                />
+                <Button size="sm" onClick={this.addStreamKey} disabled={!newKeyValue.trim()} className="gap-1">
+                  <IconPlus /> Add
                 </Button>
               </div>
             </div>
           </CardContent>
         </Card>
+
+        {/* Video Codec */}
+        {supportedCodecs.length > 1 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Video Codec</CardTitle>
+              <CardDescription>Hardware-accelerated codecs reduce CPU usage significantly.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div class="flex flex-wrap gap-2">
+                {supportedCodecs.map((codec) => {
+                  const isActive = videoCodec === codec;
+                  return (
+                    <button
+                      key={codec}
+                      class={cn('pill-btn px-4 py-2 rounded-lg text-xs font-medium cursor-pointer', isActive && 'active')}
+                      onClick={() => this.handleVideoCodecChange(codec)}
+                    >
+                      {codec}
+                    </button>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Latency */}
         <Card>
