@@ -74,8 +74,16 @@ const html = `<!DOCTYPE html>
     <link rel="stylesheet" href="/_next/tailwind.css" />
     <base target="_blank" />
   </head>
-  <body class="bg-background text-foreground">
+  <body>
     <script nonce="{{.Nonce}}">
+      // Prevent flash of wrong theme — runs before first paint
+      (function(){
+        var d=localStorage.getItem('theme');
+        var dark=d==='dark'||(d===null&&true); // default dark for streaming
+        if(dark)document.documentElement.classList.add('dark');
+        var t=localStorage.getItem('oni_theme');
+        if(t&&t!=='neutral')document.documentElement.classList.add('theme-'+t);
+      })();
       window.configHydration = {{.ServerConfigJSON}};
       window.statusHydration = {{.StatusJSON}};
     </script>

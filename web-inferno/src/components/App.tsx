@@ -151,21 +151,17 @@ export class App extends Component<{}, AppComponentState> {
 
     if (error) {
       return (
-        <div class="relative flex items-center justify-center min-h-screen bg-background overflow-hidden">
-          <div class="ambient-glow" />
-          <div class="noise-overlay" />
-          <Card className="relative max-w-sm w-full mx-4 animate-scale-in text-center">
+        <div class="flex items-center justify-center min-h-screen bg-background">
+          <Card className="max-w-sm w-full mx-4 text-center">
             <CardContent className="pt-6">
-              <div class="size-14 rounded-xl bg-destructive/10 flex items-center justify-center mx-auto mb-5">
-                <svg class="size-6 text-destructive" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <div class="size-12 rounded-lg bg-destructive/10 flex items-center justify-center mx-auto mb-4">
+                <svg class="size-5 text-destructive" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
                 </svg>
               </div>
-              <h2 class="text-lg font-bold text-foreground mb-2">Unable to connect</h2>
-              <p class="text-sm text-muted-foreground mb-6 leading-relaxed">{error}</p>
-              <Button onClick={() => window.location.reload()} className="px-6">
-                Try Again
-              </Button>
+              <h2 class="text-lg font-semibold mb-2">Unable to connect</h2>
+              <p class="text-sm text-muted-foreground mb-6">{error}</p>
+              <Button onClick={() => window.location.reload()}>Try Again</Button>
             </CardContent>
           </Card>
         </div>
@@ -174,15 +170,10 @@ export class App extends Component<{}, AppComponentState> {
 
     if (loading) {
       return (
-        <div class="relative flex items-center justify-center min-h-screen bg-background overflow-hidden">
-          <div class="ambient-glow" />
-          <div class="noise-overlay" />
-          <div class="relative text-center animate-fade-in">
-            <div class="relative mb-5">
-              <Spinner size="lg" className="mx-auto" />
-              <div class="absolute inset-0 rounded-full blur-xl bg-primary/10" />
-            </div>
-            <p class="text-muted-foreground text-xs font-medium tracking-widest uppercase">Loading stream</p>
+        <div class="flex items-center justify-center min-h-screen bg-background">
+          <div class="text-center">
+            <Spinner size="lg" className="mx-auto mb-4" />
+            <p class="text-sm text-muted-foreground">Loading stream...</p>
           </div>
         </div>
       );
@@ -191,10 +182,9 @@ export class App extends Component<{}, AppComponentState> {
     const showChat = chatVisible && !chatDisabled && !isMobile;
 
     return (
-      <div class="relative flex flex-col h-screen bg-background overflow-hidden">
-        <div class="noise-overlay z-0" />
+      <div class="flex flex-col h-screen bg-background">
         <Header />
-        <div class="flex flex-1 min-h-0 relative z-10">
+        <div class="flex flex-1 min-h-0">
           {/* Main content column */}
           <div class="flex flex-col flex-1 overflow-y-auto">
             {online ? (
@@ -217,7 +207,7 @@ export class App extends Component<{}, AppComponentState> {
           </div>
           {/* Chat sidebar */}
           {showChat && (
-            <div class="w-[360px] shrink-0 border-l border-border bg-card/40">
+            <div class="w-[340px] shrink-0 border-l border-border bg-card">
               <ChatContainer />
             </div>
           )}

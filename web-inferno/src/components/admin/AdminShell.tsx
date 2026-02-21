@@ -1,6 +1,6 @@
 import { Component } from 'inferno';
 import { createElement } from 'inferno-create-element';
-import { Badge, Separator, Toaster } from 'blazecn';
+import { Badge, Separator, Toaster, ThemeToggle } from 'blazecn';
 import { cn } from 'blazecn';
 import { store } from '../../store';
 
@@ -143,34 +143,33 @@ export class AdminShell extends Component<AdminShellProps, AdminShellState> {
     return (
       <div class="min-h-screen bg-background">
         {/* ── Top Header — matches mycelium.social ── */}
-        <nav class="sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur-md">
-          <div class="flex h-14 items-center justify-between px-5">
+        <header class="sticky top-0 z-50 border-b border-border/30 bg-background/80 backdrop-blur-xl backdrop-saturate-150">
+          <div class="flex h-14 items-center justify-between px-4 sm:px-6">
             {/* Left: Logo + Nav */}
-            <div class="flex items-center gap-1">
-              <a href="/" class="flex items-center gap-2 shrink-0 mr-4">
+            <div class="flex items-center gap-4">
+              <a href="/" class="flex items-center gap-2.5 shrink-0">
                 <span class="text-xl">🔥</span>
-                <span class="font-extrabold text-base tracking-tight">oni</span>
+                <span class="text-lg font-bold tracking-tight">{name || 'oni'}</span>
               </a>
-              {/* Desktop nav links */}
-              <div class="hidden md:flex items-center gap-0.5">
+              <nav class="hidden md:flex items-center gap-0.5">
                 <a
                   href="/"
-                  class="inline-flex h-9 items-center justify-center rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+                  class="inline-flex h-9 items-center justify-center rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
                 >
                   Stream
                 </a>
                 <a
-                  href="https://app.mycelium.social"
+                  href="https://mycelium.social"
                   target="_blank"
                   rel="noopener"
-                  class="inline-flex h-9 items-center justify-center rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+                  class="inline-flex h-9 items-center justify-center rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
                 >
                   Mycelium
                 </a>
-              </div>
+              </nav>
             </div>
 
-            {/* Right: Status badges */}
+            {/* Right: Status + Theme */}
             <div class="flex items-center gap-2">
               {online && viewerCount > 0 && (
                 <Badge variant="outline" className="tabular-nums gap-1.5">
@@ -182,17 +181,18 @@ export class AdminShell extends Component<AdminShellProps, AdminShellState> {
               )}
               <Badge variant={online ? 'default' : 'secondary'} className={cn(
                 'gap-1.5',
-                online && 'bg-green-600 text-white'
+                online && 'bg-success text-success-foreground'
               )}>
                 <span class={cn(
                   'size-1.5 rounded-full',
-                  online ? 'bg-white live-dot' : 'bg-muted-foreground/50'
+                  online ? 'bg-current live-dot' : 'bg-muted-foreground/50'
                 )} />
                 {online ? 'Live' : 'Offline'}
               </Badge>
+              <ThemeToggle className="hidden sm:inline-flex size-8" />
             </div>
           </div>
-        </nav>
+        </header>
 
         <div class="flex">
           {/* ── Sidebar — matches mycelium.social sidebar pattern ── */}

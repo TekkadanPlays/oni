@@ -126,7 +126,7 @@ export class VideoPlayer extends Component<VideoPlayerProps, VideoPlayerState> {
         {isLoading && !hasError && (
           <div class="absolute inset-0 flex items-center justify-center bg-black/95 pointer-events-none">
             <div class="absolute inset-0 bg-gradient-to-b from-primary/[0.04] via-transparent to-transparent" />
-            <div class="relative flex flex-col items-center gap-5 animate-fade-in">
+            <div class="relative flex flex-col items-center gap-5">
               <div class="relative">
                 <Spinner size="lg" />
                 <div class="absolute -inset-4 rounded-full blur-2xl bg-primary/10" />
@@ -142,7 +142,7 @@ export class VideoPlayer extends Component<VideoPlayerProps, VideoPlayerState> {
         {hasError && (
           <div class="absolute inset-0 flex items-center justify-center bg-black/95">
             <div class="absolute inset-0 bg-gradient-to-b from-destructive/[0.03] via-transparent to-transparent" />
-            <div class="relative flex flex-col items-center gap-5 text-center px-6 animate-scale-in">
+            <div class="relative flex flex-col items-center gap-5 text-center px-6">
               <div class="size-16 rounded-2xl bg-destructive/10 border border-destructive/20 flex items-center justify-center">
                 <svg class="size-7 text-destructive" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
@@ -154,7 +154,7 @@ export class VideoPlayer extends Component<VideoPlayerProps, VideoPlayerState> {
               </div>
               <Button
                 size="sm"
-                className="px-6 font-semibold glow-primary"
+                className="px-6 font-semibold"
                 onClick={() => {
                   this.setState({ isLoading: true, hasError: false });
                   this.initPlayer();

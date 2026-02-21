@@ -131,15 +131,10 @@ export class AdminPage extends Component<{}, AdminPageState> {
 
     if (authChecking) {
       return (
-        <div class="relative flex items-center justify-center min-h-screen bg-background overflow-hidden">
-          <div class="ambient-glow" />
-          <div class="noise-overlay" />
-          <div class="relative flex flex-col items-center gap-4 animate-fade-in">
-            <div class="relative">
-              <Spinner size="lg" />
-              <div class="absolute inset-0 rounded-full blur-xl bg-primary/10" />
-            </div>
-            <p class="text-sm font-medium text-muted-foreground">Checking authorization...</p>
+        <div class="flex items-center justify-center min-h-screen bg-background">
+          <div class="flex flex-col items-center gap-4">
+            <Spinner size="lg" />
+            <p class="text-sm text-muted-foreground">Checking authorization...</p>
           </div>
         </div>
       );
@@ -147,10 +142,8 @@ export class AdminPage extends Component<{}, AdminPageState> {
 
     if (!authenticated) {
       return (
-        <div class="relative flex items-center justify-center min-h-screen bg-background overflow-hidden">
-          <div class="ambient-glow" />
-          <div class="noise-overlay" />
-          <Card className="relative w-full max-w-sm py-6 gap-5 animate-scale-in">
+        <div class="flex items-center justify-center min-h-screen bg-background">
+          <Card className="w-full max-w-sm py-6 gap-5 mx-4">
             <CardHeader className="text-center">
               <div class="mx-auto size-14 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-3 ring-1 ring-primary/10">
                 <svg class="size-7 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
