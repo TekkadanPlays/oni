@@ -7,7 +7,8 @@ import { getBootstrapState, subscribeBootstrap, type BootstrapProfile, type Boot
 import { getLiveEventState, subscribeLiveEvents, setLiveEventsEnabled } from '../../nostr/stores/liveevents';
 import {
   getBroadcastState, subscribeBroadcast, discoverBroadcastRelays,
-  toggleBroadcastRelay, type BroadcastRelay, type BroadcastState,
+  toggleBroadcastRelay, selectAllBroadcast, deselectAllBroadcast,
+  type BroadcastRelay, type BroadcastState,
 } from '../../nostr/stores/broadcast';
 import {
   getRelayManagerState, subscribeRelayManager,
@@ -16,6 +17,8 @@ import {
   type RelayManagerState,
 } from '../../nostr/stores/relaymanager';
 import { shortenHex, npubEncode } from '../../nostr/utils';
+
+type RelayTab = 'outbox' | 'broadcast' | 'custom';
 
 interface NostrSettingsTabState {
   pubkey: string | null;
@@ -35,6 +38,7 @@ interface NostrSettingsTabState {
   selectedOutbox: Set<string>;
   newCustomRelayUrl: string;
   newProfileName: string;
+  relayTab: RelayTab;
 }
 
 const OUTBOX_STORAGE_KEY = 'oni_outbox_relays_selected';
@@ -75,6 +79,7 @@ export class NostrSettingsTab extends Component<{}, NostrSettingsTabState> {
     selectedOutbox: loadSelectedOutbox(),
     newCustomRelayUrl: '',
     newProfileName: '',
+    relayTab: 'outbox' as RelayTab,
   };
 
   componentDidMount() {
@@ -135,6 +140,19 @@ export class NostrSettingsTab extends Component<{}, NostrSettingsTabState> {
     persistSelectedOutbox(next);
   };
 
+  private selectAllOutbox = () => {
+    const outbox = this.state.relayList.filter((r) => r.write).map((r) => r.url);
+    const next = new Set(outbox);
+    this.setState({ selectedOutbox: next });
+    persistSelectedOutbox(next);
+  };
+
+  private deselectAllOutbox = () => {
+    const next = new Set<string>();
+    this.setState({ selectedOutbox: next });
+    persistSelectedOutbox(next);
+  };
+
   private handleAddCustomRelay = (profileId: string) => {
     let url = this.state.newCustomRelayUrl.trim();
     if (!url) return;
@@ -155,11 +173,14 @@ export class NostrSettingsTab extends Component<{}, NostrSettingsTabState> {
       pubkey, authLoading, authError, profile, bootstrapPhase,
       relayList, followingCount, liveEventsEnabled, liveEventPublishing,
       liveEventError, lastPublished, broadcast, manager, selectedOutbox,
-      newCustomRelayUrl, newProfileName,
+      newCustomRelayUrl, newProfileName, relayTab,
     } = this.state;
 
     const outboxRelays = relayList.filter((r) => r.write);
     const relayCount = relayList.length;
+    const customRelayCount = manager.profiles
+      .filter((p) => !p.builtin)
+      .reduce((sum, p) => sum + p.relays.length, 0);
 
     return (
       <div class="max-w-3xl space-y-6">
@@ -273,195 +294,234 @@ export class NostrSettingsTab extends Component<{}, NostrSettingsTabState> {
           </CardContent>
         </Card>
 
-        {/* ── Outbox Relays ── */}
+        {/* ── Relay Selection Table ── */}
         <Card>
           <CardHeader>
-            <CardTitle>Outbox Relays</CardTitle>
+            <CardTitle>Publish Relays</CardTitle>
             <CardDescription>
-              Your NIP-65 write relays. Check all that apply for publishing NIP-53 live events.
+              Select which relays receive your NIP-53 live events. Outbox relays are from your NIP-65 list, broadcast relays are discovered via NIP-66 monitors, and custom relays are manually added.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {!pubkey ? (
-              <p class="text-xs text-muted-foreground italic">Connect your Nostr identity to see your outbox relays.</p>
-            ) : bootstrapPhase !== 'ready' && outboxRelays.length === 0 ? (
-              <div class="space-y-2">
-                <Skeleton className="h-8 rounded-md" />
-                <Skeleton className="h-8 rounded-md" />
-                <Skeleton className="h-8 rounded-md" />
-              </div>
-            ) : outboxRelays.length === 0 ? (
-              <p class="text-xs text-muted-foreground italic">No outbox relays found in your NIP-65 relay list.</p>
-            ) : (
-              <div class="space-y-1">
-                {outboxRelays.map((relay) => (
-                  <label
-                    key={relay.url}
-                    class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-accent/50 cursor-pointer transition-colors"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedOutbox.has(relay.url)}
-                      onChange={() => this.toggleOutboxRelay(relay.url)}
-                      class="size-4 rounded border-input accent-primary cursor-pointer"
-                    />
-                    <span class="text-sm text-foreground truncate flex-1 font-mono">{relay.url}</span>
-                    <Badge variant="outline" className="text-[10px] shrink-0">write</Badge>
-                  </label>
-                ))}
-                <p class="text-[11px] text-muted-foreground mt-2 px-1">
+            {/* Tab bar with count badges */}
+            <div class="flex gap-1 mb-4 border-b border-border">
+              {([
+                { id: 'outbox' as RelayTab, label: 'Outbox', count: outboxRelays.length, selected: selectedOutbox.size },
+                { id: 'broadcast' as RelayTab, label: 'Broadcast', count: broadcast.relays.length, selected: broadcast.selectedUrls.size },
+                { id: 'custom' as RelayTab, label: 'Custom', count: customRelayCount, selected: customRelayCount },
+              ] as const).map((tab) => (
+                <button
+                  key={tab.id}
+                  class={cn(
+                    'relative px-4 py-2.5 text-sm font-medium transition-colors cursor-pointer',
+                    'hover:text-foreground',
+                    relayTab === tab.id
+                      ? 'text-foreground'
+                      : 'text-muted-foreground',
+                  )}
+                  onClick={() => this.setState({ relayTab: tab.id })}
+                >
+                  <span class="flex items-center gap-2">
+                    {tab.label}
+                    <Badge
+                      variant={tab.selected > 0 ? 'default' : 'outline'}
+                      className="text-[10px] px-1.5 min-w-[1.5rem] justify-center tabular-nums"
+                    >
+                      {tab.selected}/{tab.count}
+                    </Badge>
+                  </span>
+                  {relayTab === tab.id && (
+                    <span class="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-t-full" />
+                  )}
+                </button>
+              ))}
+            </div>
+
+            {/* Select all / Deselect all toolbar */}
+            {relayTab === 'outbox' && outboxRelays.length > 0 && (
+              <div class="flex items-center justify-between mb-3">
+                <p class="text-[11px] text-muted-foreground">
                   {selectedOutbox.size} of {outboxRelays.length} selected
                 </p>
+                <div class="flex gap-1.5">
+                  <Button size="xs" variant="ghost" className="text-xs h-6 px-2" onClick={this.selectAllOutbox}>Select All</Button>
+                  <Button size="xs" variant="ghost" className="text-xs h-6 px-2" onClick={this.deselectAllOutbox}>Deselect All</Button>
+                </div>
               </div>
             )}
-          </CardContent>
-        </Card>
-
-        {/* ── Broadcast Relays ── */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Broadcast Relays</CardTitle>
-            <CardDescription>
-              Well-connected relays for maximum event propagation. Discovered via NIP-66 monitors. Check all that apply.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {broadcast.isLoading ? (
-              <div class="flex items-center gap-2 py-4">
-                <Spinner size="sm" />
-                <span class="text-xs text-muted-foreground">Discovering broadcast relays...</span>
+            {relayTab === 'broadcast' && broadcast.relays.length > 0 && (
+              <div class="flex items-center justify-between mb-3">
+                <p class="text-[11px] text-muted-foreground">
+                  {broadcast.selectedUrls.size} of {broadcast.relays.length} selected
+                  {broadcast.source !== 'none' && <span class="ml-1">· via {broadcast.source}</span>}
+                </p>
+                <div class="flex gap-1.5">
+                  <Button size="xs" variant="ghost" className="text-xs h-6 px-2" onClick={() => selectAllBroadcast()}>Select All</Button>
+                  <Button size="xs" variant="ghost" className="text-xs h-6 px-2" onClick={() => deselectAllBroadcast()}>Deselect All</Button>
+                </div>
               </div>
-            ) : broadcast.relays.length === 0 ? (
+            )}
+
+            {/* ── Outbox tab content ── */}
+            {relayTab === 'outbox' && (
               <div>
-                <p class="text-xs text-muted-foreground italic mb-2">No broadcast relays discovered yet.</p>
-                <Button size="sm" variant="secondary" onClick={() => discoverBroadcastRelays(20)}>
-                  Retry Discovery
-                </Button>
-              </div>
-            ) : (
-              <div class="space-y-1">
-                {broadcast.relays.map((relay: BroadcastRelay) => (
-                  <label
-                    key={relay.url}
-                    class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-accent/50 cursor-pointer transition-colors"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={broadcast.selectedUrls.has(relay.url)}
-                      onChange={() => toggleBroadcastRelay(relay.url)}
-                      class="size-4 rounded border-input accent-primary cursor-pointer"
-                    />
-                    <span class="text-sm text-foreground truncate flex-1 font-mono">{relay.url}</span>
-                    <div class="flex items-center gap-1.5 shrink-0">
-                      {relay.nips.includes(53) && (
-                        <Badge variant="default" className="text-[10px] px-1.5">NIP-53</Badge>
-                      )}
-                      {relay.rtt < 500 && (
-                        <Badge variant="outline" className="text-[10px] px-1.5 tabular-nums">{relay.rtt}ms</Badge>
-                      )}
-                    </div>
-                  </label>
-                ))}
-                <div class="flex items-center justify-between mt-2 px-1">
-                  <p class="text-[11px] text-muted-foreground">
-                    {broadcast.selectedUrls.size} of {broadcast.relays.length} selected
-                    {broadcast.source !== 'none' && (
-                      <span class="ml-1">· via {broadcast.source}</span>
-                    )}
-                  </p>
-                </div>
+                {!pubkey ? (
+                  <p class="text-xs text-muted-foreground italic py-4">Connect your Nostr identity to see your outbox relays.</p>
+                ) : bootstrapPhase !== 'ready' && outboxRelays.length === 0 ? (
+                  <div class="space-y-2 py-2">
+                    <Skeleton className="h-8 rounded-md" />
+                    <Skeleton className="h-8 rounded-md" />
+                    <Skeleton className="h-8 rounded-md" />
+                  </div>
+                ) : outboxRelays.length === 0 ? (
+                  <p class="text-xs text-muted-foreground italic py-4">No outbox relays found in your NIP-65 relay list.</p>
+                ) : (
+                  <div class="divide-y divide-border/50">
+                    {outboxRelays.map((relay) => (
+                      <label
+                        key={relay.url}
+                        class="flex items-center gap-3 px-3 py-2 hover:bg-accent/50 cursor-pointer transition-colors"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedOutbox.has(relay.url)}
+                          onChange={() => this.toggleOutboxRelay(relay.url)}
+                          class="size-4 rounded border-input accent-primary cursor-pointer"
+                        />
+                        <span class="text-xs text-foreground truncate flex-1 font-mono">{relay.url}</span>
+                        <Badge variant="outline" className="text-[10px] shrink-0">write</Badge>
+                      </label>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
-          </CardContent>
-        </Card>
 
-        {/* ── Custom Relay Profiles ── */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Other Relays</CardTitle>
-            <CardDescription>
-              Manually add relays or create custom profiles for different broadcasting scenarios.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {/* Existing custom profiles (non-builtin) */}
-            {manager.profiles
-              .filter((p) => !p.builtin)
-              .map((profile) => (
-                <div key={profile.id} class="mb-4">
-                  <div class="flex items-center justify-between mb-2">
-                    <div class="flex items-center gap-2">
-                      <span class="text-sm font-semibold text-foreground">{profile.name}</span>
-                      <Badge variant="outline" className="text-[10px]">{profile.relays.length} relays</Badge>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="xs"
-                      className="text-destructive hover:text-destructive"
-                      onClick={() => deleteProfile(profile.id)}
-                    >
-                      Delete
+            {/* ── Broadcast tab content ── */}
+            {relayTab === 'broadcast' && (
+              <div>
+                {broadcast.isLoading ? (
+                  <div class="flex items-center gap-2 py-6 justify-center">
+                    <Spinner size="sm" />
+                    <span class="text-xs text-muted-foreground">Discovering broadcast relays...</span>
+                  </div>
+                ) : broadcast.relays.length === 0 ? (
+                  <div class="py-4 text-center">
+                    <p class="text-xs text-muted-foreground italic mb-2">No broadcast relays discovered yet.</p>
+                    <Button size="sm" variant="secondary" onClick={() => discoverBroadcastRelays(20)}>
+                      Retry Discovery
                     </Button>
                   </div>
-                  {profile.relays.length === 0 ? (
-                    <p class="text-xs text-muted-foreground italic px-1 mb-2">No relays in this profile</p>
-                  ) : (
-                    <div class="space-y-1 mb-2">
-                      {profile.relays.map((url) => (
-                        <div key={url} class="flex items-center justify-between group px-3 py-1.5 rounded-md bg-background">
-                          <span class="text-xs text-foreground font-mono truncate">{url}</span>
-                          <Button
-                            variant="ghost"
-                            size="xs"
-                            className="text-destructive hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
-                            onClick={() => removeRelayFromProfile(profile.id, url)}
-                          >
-                            Remove
-                          </Button>
+                ) : (
+                  <div class="divide-y divide-border/50">
+                    {broadcast.relays.map((relay: BroadcastRelay) => (
+                      <label
+                        key={relay.url}
+                        class="flex items-center gap-3 px-3 py-2 hover:bg-accent/50 cursor-pointer transition-colors"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={broadcast.selectedUrls.has(relay.url)}
+                          onChange={() => toggleBroadcastRelay(relay.url)}
+                          class="size-4 rounded border-input accent-primary cursor-pointer"
+                        />
+                        <span class="text-xs text-foreground truncate flex-1 font-mono">{relay.url}</span>
+                        <div class="flex items-center gap-1.5 shrink-0">
+                          {relay.nips.includes(53) && (
+                            <Badge variant="default" className="text-[10px] px-1.5">NIP-53</Badge>
+                          )}
+                          {relay.rtt < 500 && (
+                            <Badge variant="outline" className="text-[10px] px-1.5 tabular-nums">{relay.rtt}ms</Badge>
+                          )}
                         </div>
-                      ))}
-                    </div>
-                  )}
-                  <div class="flex gap-2">
-                    <Input
-                      className="flex-1 h-8 text-xs"
-                      placeholder="wss://relay.example.com"
-                      value={newCustomRelayUrl}
-                      onInput={(e: Event) => this.setState({ newCustomRelayUrl: (e.target as HTMLInputElement).value })}
-                      onKeyDown={(e: KeyboardEvent) => {
-                        if (e.key === 'Enter') this.handleAddCustomRelay(profile.id);
-                      }}
-                    />
-                    <Button size="sm" className="h-8" onClick={() => this.handleAddCustomRelay(profile.id)}>
-                      Add
-                    </Button>
+                      </label>
+                    ))}
                   </div>
-                  <Separator className="mt-4" />
-                </div>
-              ))}
-
-            {/* If no custom profiles exist, show a prompt */}
-            {manager.profiles.filter((p) => !p.builtin).length === 0 && (
-              <p class="text-xs text-muted-foreground italic mb-3">
-                No custom relay profiles yet. Create one to manually specify additional relays.
-              </p>
+                )}
+              </div>
             )}
 
-            {/* Create new profile */}
-            <div class="flex gap-2 mt-2">
-              <Input
-                className="flex-1 h-8 text-xs"
-                placeholder="New profile name..."
-                value={newProfileName}
-                onInput={(e: Event) => this.setState({ newProfileName: (e.target as HTMLInputElement).value })}
-                onKeyDown={(e: KeyboardEvent) => {
-                  if (e.key === 'Enter') this.handleCreateProfile();
-                }}
-              />
-              <Button size="sm" variant="secondary" className="h-8" onClick={this.handleCreateProfile}>
-                Create Profile
-              </Button>
-            </div>
+            {/* ── Custom tab content ── */}
+            {relayTab === 'custom' && (
+              <div>
+                {/* Existing custom profiles */}
+                {manager.profiles
+                  .filter((p) => !p.builtin)
+                  .map((profile) => (
+                    <div key={profile.id} class="mb-4">
+                      <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-2">
+                          <span class="text-sm font-semibold text-foreground">{profile.name}</span>
+                          <Badge variant="outline" className="text-[10px]">{profile.relays.length} relays</Badge>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="xs"
+                          className="text-destructive hover:text-destructive"
+                          onClick={() => deleteProfile(profile.id)}
+                        >
+                          Delete
+                        </Button>
+                      </div>
+                      {profile.relays.length === 0 ? (
+                        <p class="text-xs text-muted-foreground italic px-1 mb-2">No relays in this profile</p>
+                      ) : (
+                        <div class="divide-y divide-border/50 mb-2">
+                          {profile.relays.map((url) => (
+                            <div key={url} class="flex items-center justify-between group px-3 py-1.5">
+                              <span class="text-xs text-foreground font-mono truncate">{url}</span>
+                              <Button
+                                variant="ghost"
+                                size="xs"
+                                className="text-destructive hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                                onClick={() => removeRelayFromProfile(profile.id, url)}
+                              >
+                                Remove
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      <div class="flex gap-2">
+                        <Input
+                          className="flex-1 h-8 text-xs"
+                          placeholder="wss://relay.example.com"
+                          value={newCustomRelayUrl}
+                          onInput={(e: Event) => this.setState({ newCustomRelayUrl: (e.target as HTMLInputElement).value })}
+                          onKeyDown={(e: KeyboardEvent) => {
+                            if (e.key === 'Enter') this.handleAddCustomRelay(profile.id);
+                          }}
+                        />
+                        <Button size="sm" className="h-8" onClick={() => this.handleAddCustomRelay(profile.id)}>
+                          Add
+                        </Button>
+                      </div>
+                      <Separator className="mt-4" />
+                    </div>
+                  ))}
+
+                {manager.profiles.filter((p) => !p.builtin).length === 0 && (
+                  <p class="text-xs text-muted-foreground italic mb-3 py-2">
+                    No custom relay profiles yet. Create one to manually specify additional relays.
+                  </p>
+                )}
+
+                <div class="flex gap-2 mt-2">
+                  <Input
+                    className="flex-1 h-8 text-xs"
+                    placeholder="New profile name..."
+                    value={newProfileName}
+                    onInput={(e: Event) => this.setState({ newProfileName: (e.target as HTMLInputElement).value })}
+                    onKeyDown={(e: KeyboardEvent) => {
+                      if (e.key === 'Enter') this.handleCreateProfile();
+                    }}
+                  />
+                  <Button size="sm" variant="secondary" className="h-8" onClick={this.handleCreateProfile}>
+                    Create Profile
+                  </Button>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 

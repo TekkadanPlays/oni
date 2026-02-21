@@ -91,6 +91,19 @@ export function setBroadcastRelaySelected(url: string, selected: boolean) {
   notify();
 }
 
+export function selectAllBroadcast() {
+  const next = new Set(state.relays.map((r) => r.url));
+  state = { ...state, selectedUrls: next };
+  persistSelected();
+  notify();
+}
+
+export function deselectAllBroadcast() {
+  state = { ...state, selectedUrls: new Set() };
+  persistSelected();
+  notify();
+}
+
 // Well-known broadcast relays as fallback
 const FALLBACK_BROADCAST: BroadcastRelay[] = [
   { url: 'wss://relay.damus.io', rtt: 100, nips: [1, 11, 53] },

@@ -66,8 +66,29 @@ export class VideoPlayer extends Component<VideoPlayerProps, VideoPlayerState> {
       if (Hls.isSupported()) {
         this.hlsInstance = new Hls({
           enableWorker: true,
-          lowLatencyMode: true,
+          // === Resilience-first config for cheap VPS ===
+          // lowLatencyMode DISABLED — it aggressively chases the live edge
+          // causing constant rebuffering when the server has I/O or CPU jitter.
+          lowLatencyMode: false,
+          // Forward buffer: fetch up to 30s ahead so playback survives server hiccups
+          maxBufferLength: 30,
+          maxMaxBufferLength: 60,
+          // Back buffer: keep 90s of already-played segments in memory
           backBufferLength: 90,
+          // Live sync: target 3 segments behind live edge (not 1)
+          liveSyncDurationCount: 3,
+          liveMaxLatencyDurationCount: 6,
+          // ABR: conservative bandwidth estimation to avoid quality oscillation
+          abrEwmaDefaultEstimate: 1000000, // Start assuming 1 Mbps
+          abrBandWidthUpFactor: 0.7, // Require 70% headroom before upgrading quality
+          abrBandWidthFactor: 0.8, // Downgrade at 80% of available bandwidth
+          // Retry: aggressive retries before giving up
+          manifestLoadPolicy: {
+            default: { maxTimeToFirstByteMs: 10000, maxLoadTimeMs: 20000, timeoutRetry: { maxNumRetry: 4, retryDelayMs: 1000, maxRetryDelayMs: 8000 }, errorRetry: { maxNumRetry: 6, retryDelayMs: 1000, maxRetryDelayMs: 8000 } },
+          },
+          fragLoadPolicy: {
+            default: { maxTimeToFirstByteMs: 10000, maxLoadTimeMs: 60000, timeoutRetry: { maxNumRetry: 4, retryDelayMs: 1000, maxRetryDelayMs: 8000 }, errorRetry: { maxNumRetry: 6, retryDelayMs: 1000, maxRetryDelayMs: 8000 } },
+          },
         });
         this.hlsInstance.loadSource(src);
         this.hlsInstance.attachMedia(video);
