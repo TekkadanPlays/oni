@@ -62,9 +62,10 @@ func (c *Libx264Codec) Scaler() string {
 
 // ExtraArguments are the extra arguments used with this codec in the transcoder.
 func (c *Libx264Codec) ExtraArguments() []string {
-	return []string{
-		"-tune", "zerolatency", // Option used for good for fast encoding and low-latency streaming (always includes iframes in each segment)
-	}
+	// NOTE: -tune zerolatency was removed. It disables B-frames and lookahead,
+	// destroying ~30-40% compression efficiency. Keyframe alignment is already
+	// enforced by -g and -keyint_min in getVideoQualityString.
+	return nil
 }
 
 // ExtraFilters are the extra filters required for this codec in the transcoder.
@@ -132,9 +133,7 @@ func (c *OmxCodec) Scaler() string {
 
 // ExtraArguments are the extra arguments used with this codec in the transcoder.
 func (c *OmxCodec) ExtraArguments() []string {
-	return []string{
-		"-tune", "zerolatency", // Option used for good for fast encoding and low-latency streaming (always includes iframes in each segment)
-	}
+	return nil
 }
 
 // ExtraFilters are the extra filters required for this codec in the transcoder.

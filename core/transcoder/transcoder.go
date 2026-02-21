@@ -81,9 +81,22 @@ type VideoSize struct {
 // complains about.
 
 // getAllocatedVideoBitrate returns the video bitrate we allocate after making some room for audio.
-// 192 is pretty average.
 func (v *HLSVariant) getAllocatedVideoBitrate() int {
-	return int(float64(v.videoBitrate) - 192)
+	if v.isAudioPassthrough {
+		// Audio is copied directly, so the full bitrate budget goes to video.
+		return v.videoBitrate
+	}
+	// Reserve space for the audio bitrate.
+	audioKbps := 0
+	if v.audioBitrate != "" {
+		if parsed, err := strconv.Atoi(strings.TrimSuffix(v.audioBitrate, "k")); err == nil {
+			audioKbps = parsed
+		}
+	}
+	if audioKbps == 0 {
+		audioKbps = 128 // sensible default
+	}
+	return v.videoBitrate - audioKbps
 }
 
 // getMaxVideoBitrate returns the maximum video bitrate we allow the encoder to support.
@@ -91,9 +104,10 @@ func (v *HLSVariant) getMaxVideoBitrate() int {
 	return int(float64(v.getAllocatedVideoBitrate()) * 1.08)
 }
 
-// getBufferSize returns how often it checks the bitrate of encoded segments to see if it's too high/low.
+// getBufferSize returns the VBV buffer size. A larger buffer gives the encoder
+// more headroom to handle scene complexity spikes without panic-dropping quality.
 func (v *HLSVariant) getBufferSize() int {
-	return int(float64(v.getMaxVideoBitrate()))
+	return int(float64(v.getMaxVideoBitrate()) * 2.0)
 }
 
 // getString returns a WxH formatted getString for scaling video output.
@@ -231,8 +245,9 @@ func (t *Transcoder) getFlags() *execInfo {
 	}
 	ffmpegFlags = append(ffmpegFlags, t.codec.GlobalFlags()...)
 	ffmpegFlags = append(ffmpegFlags, []string{
-		"-fflags", "+genpts", // Generate presentation time stamp if missing
+		"-fflags", "+genpts+nobuffer", // Generate PTS if missing; reduce input buffering delay
 		"-flags", "+cgop", // Force closed GOPs
+		"-thread_queue_size", "512", // Input thread queue size to prevent stalls from slow stdin reads
 		"-i", t.input,
 	}...)
 
@@ -260,7 +275,7 @@ func (t *Transcoder) getFlags() *execInfo {
 		"-master_pl_name", "stream.m3u8",
 
 		"-hls_segment_filename", localListenerAddress + "/%v/stream-" + t.segmentIdentifier + "-%d.ts", // Send HLS segments back to us over HTTP
-		"-max_muxing_queue_size", "400", // Workaround for Too many packets error: https://trac.ffmpeg.org/ticket/6375?cversion=0
+		"-max_muxing_queue_size", "2048", // Prevent "Too many packets buffered" crashes with multi-variant HLS
 
 		"-method", "PUT", // HLS results sent back to us will be over PUTs
 
@@ -347,7 +362,7 @@ func (v *HLSVariant) getVariantString(t *Transcoder) []string {
 		if t.codec.ExtraFilters() != "" {
 			filters = append(filters, t.codec.ExtraFilters())
 		}
-		scalingAlgorithm := "bilinear"
+		scalingAlgorithm := "lanczos"
 		variantEncoderCommands = append(variantEncoderCommands, []string{
 			"-sws_flags", scalingAlgorithm,
 			"-filter:v:" + strconv.Itoa(v.index), strings.Join(filters, ","),

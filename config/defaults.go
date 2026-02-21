@@ -87,9 +87,17 @@ func GetDefaults() Defaults {
 		StreamVariants: []models.StreamOutputVariant{
 			{
 				IsAudioPassthrough: true,
-				VideoBitrate:       1200,
-				Framerate:          24,
+				VideoBitrate:       2500,
+				Framerate:          30,
+				ScaledHeight:       720,
 				CPUUsageLevel:      2,
+			},
+			{
+				IsAudioPassthrough: true,
+				VideoBitrate:       1000,
+				Framerate:          30,
+				ScaledHeight:       480,
+				CPUUsageLevel:      1,
 			},
 		},
 
