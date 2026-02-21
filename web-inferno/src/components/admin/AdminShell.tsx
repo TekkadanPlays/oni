@@ -1,8 +1,9 @@
 import { Component } from 'inferno';
 import { createElement } from 'inferno-create-element';
-import { Badge, Separator, Toaster, ThemeToggle } from 'blazecn';
+import { Badge, Separator, Toaster } from 'blazecn';
 import { cn } from 'blazecn';
 import { store } from '../../store';
+import { ThemeSelector } from '../ThemeSelector';
 
 export type AdminTab = 'overview' | 'general' | 'video' | 'chat' | 'logs' | 'viewers' | 'tokens' | 'nostr' | 'relays';
 
@@ -189,7 +190,7 @@ export class AdminShell extends Component<AdminShellProps, AdminShellState> {
                 )} />
                 {online ? 'Live' : 'Offline'}
               </Badge>
-              <ThemeToggle className="hidden sm:inline-flex size-8" />
+              <ThemeSelector className="hidden sm:inline-flex" />
             </div>
           </div>
         </header>

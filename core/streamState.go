@@ -152,7 +152,9 @@ func StopOfflineCleanupTimer() {
 }
 
 func startOnlineCleanupTimer() {
-	_onlineCleanupTicker = time.NewTicker(1 * time.Minute)
+	// 3 minutes between cleanups to reduce I/O pressure on low-resource servers.
+	// The recursive directory walk + sort is expensive on slow disks.
+	_onlineCleanupTicker = time.NewTicker(3 * time.Minute)
 	go func() {
 		for range _onlineCleanupTicker.C {
 			if err := _storage.Cleanup(); err != nil {

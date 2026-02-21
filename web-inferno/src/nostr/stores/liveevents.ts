@@ -4,6 +4,7 @@ import type { NostrEvent } from '../event';
 import { createLiveEvent, publishLiveEvent, updateLiveEvent } from '../nip53';
 import { getAuthState } from './auth';
 import { getBootstrapState } from './bootstrap';
+import { getSelectedBroadcastUrls } from './broadcast';
 
 type Listener = () => void;
 
@@ -58,12 +59,37 @@ export function loadLiveEventsEnabled() {
 
 /**
  * Get the relay URLs to publish live events to.
- * Uses the user's outbox relays from bootstrap.
+ * Merges the user's outbox relays with any selected broadcast relays.
  */
 function getPublishRelays(): string[] {
   const bs = getBootstrapState();
-  const outbox = bs.relayList.filter((r) => r.write).map((r) => r.url);
-  if (outbox.length > 0) return outbox;
+  const allOutbox = bs.relayList.filter((r) => r.write).map((r) => r.url);
+  const broadcast = getSelectedBroadcastUrls();
+
+  // Check if user has explicitly selected outbox relays
+  let outbox = allOutbox;
+  try {
+    const raw = localStorage.getItem('oni_outbox_relays_selected');
+    if (raw) {
+      const selected = new Set(JSON.parse(raw) as string[]);
+      if (selected.size > 0) {
+        outbox = allOutbox.filter((url) => selected.has(url));
+      }
+    }
+  } catch { /* ignore */ }
+
+  // Merge and deduplicate
+  const seen = new Set<string>();
+  const result: string[] = [];
+  for (const url of [...outbox, ...broadcast]) {
+    const normalized = url.replace(/\/+$/, '');
+    if (!seen.has(normalized)) {
+      seen.add(normalized);
+      result.push(normalized);
+    }
+  }
+
+  if (result.length > 0) return result;
 
   // Fallback to well-known relays
   return [

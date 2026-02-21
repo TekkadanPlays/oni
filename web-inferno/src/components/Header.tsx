@@ -3,9 +3,9 @@ import { createElement } from 'inferno-create-element';
 import { store, AppState } from '../store';
 import {
   Button, Badge, Avatar, AvatarImage, AvatarFallback, Spinner,
-  ThemeToggle,
 } from 'blazecn';
 import { cn } from 'blazecn';
+import { ThemeSelector } from './ThemeSelector';
 import { getAuthState, subscribeAuth, login, logout } from '../nostr/stores/auth';
 import { getBootstrapState, subscribeBootstrap } from '../nostr/stores/bootstrap';
 import { getDisplayName, getAvatar, fetchProfile, subscribeProfiles } from '../nostr/stores/profiles';
@@ -161,8 +161,8 @@ export class Header extends Component<{}, HeaderState> {
               </Button>
             )}
 
-            {/* Theme toggle */}
-            <ThemeToggle className="hidden sm:inline-flex size-8" />
+            {/* Theme selector */}
+            <ThemeSelector className="hidden sm:inline-flex" />
 
             {/* Auth section */}
             {nostrPubkey ? (

@@ -25,9 +25,10 @@ func StopThumbnailGenerator() {
 
 // StartThumbnailGenerator starts generating thumbnails.
 func StartThumbnailGenerator(chunkPath string, variantIndex int, isVideoPassthrough bool) {
-	// Every 20 seconds create a thumbnail from the most
-	// recent video segment.
-	_timer = time.NewTicker(20 * time.Second)
+	// Every 30 seconds create a thumbnail from the most
+	// recent video segment. Increased from 20s to reduce CPU
+	// pressure on low-resource servers.
+	_timer = time.NewTicker(30 * time.Second)
 	quit := make(chan struct{})
 
 	go func() {
@@ -53,7 +54,6 @@ func StartThumbnailGenerator(chunkPath string, variantIndex int, isVideoPassthro
 func fireThumbnailGenerator(segmentPath string, variantIndex int) error {
 	// JPG takes less time to encode than PNG
 	outputFile := path.Join(config.TempDir, "thumbnail.jpg")
-	previewGifFile := path.Join(config.TempDir, "preview.gif")
 
 	framePath := path.Join(segmentPath, strconv.Itoa(variantIndex))
 	files, err := os.ReadDir(framePath)
@@ -111,7 +111,11 @@ func fireThumbnailGenerator(segmentPath string, variantIndex int) error {
 		log.Errorln(err)
 	}
 
-	makeAnimatedGifPreview(mostRecentFile, previewGifFile)
+	// Animated GIF preview is disabled — the palettegen+paletteuse
+	// filter chain is extremely CPU-heavy and competes with the
+	// transcoder on cheap VPS instances. The static thumbnail is
+	// sufficient for stream previews.
+	// makeAnimatedGifPreview(mostRecentFile, previewGifFile)
 
 	return nil
 }

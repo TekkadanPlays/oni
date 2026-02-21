@@ -77,11 +77,12 @@ const html = `<!DOCTYPE html>
   <body>
     <script nonce="{{.Nonce}}">
       // Prevent flash of wrong theme — runs before first paint
+      // Uses shared ribbit_base_theme/ribbit_dark_mode keys from mycelium ecosystem
       (function(){
-        var d=localStorage.getItem('theme');
-        var dark=d==='dark'||(d===null&&true); // default dark for streaming
+        var d=localStorage.getItem('ribbit_dark_mode');
+        var dark=d==='true'||(d===null&&window.matchMedia('(prefers-color-scheme:dark)').matches);
         if(dark)document.documentElement.classList.add('dark');
-        var t=localStorage.getItem('oni_theme');
+        var t=localStorage.getItem('ribbit_base_theme');
         if(t&&t!=='neutral')document.documentElement.classList.add('theme-'+t);
       })();
       window.configHydration = {{.ServerConfigJSON}};

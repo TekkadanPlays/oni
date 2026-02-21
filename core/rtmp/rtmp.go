@@ -10,11 +10,11 @@ import (
 	"github.com/nareix/joy5/format/flv/flvio"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/nareix/joy5/format/rtmp"
 	"github.com/TekkadanPlays/oni/config"
 	"github.com/TekkadanPlays/oni/models"
 	"github.com/TekkadanPlays/oni/persistence/configrepository"
 	"github.com/TekkadanPlays/oni/webserver/handlers/generated"
+	"github.com/nareix/joy5/format/rtmp"
 )
 
 var _hasInboundRTMPConnection = false
@@ -115,8 +115,9 @@ func HandleConn(c *rtmp.Conn, nc net.Conn) {
 	w := flv.NewMuxer(rtmpIn)
 
 	for _hasInboundRTMPConnection {
-		// If we don't get a readable packet in 10 seconds give up and disconnect
-		if err := _rtmpConnection.SetReadDeadline(time.Now().Add(10 * time.Second)); err != nil {
+		// If we don't get a readable packet in 30 seconds give up and disconnect.
+		// Increased from 10s for resilience on congested uplinks and cheap VPS.
+		if err := _rtmpConnection.SetReadDeadline(time.Now().Add(30 * time.Second)); err != nil {
 			log.Debugln(err)
 		}
 

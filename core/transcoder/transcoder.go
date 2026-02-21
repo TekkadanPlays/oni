@@ -245,6 +245,7 @@ func (t *Transcoder) getFlags() *execInfo {
 	}
 	ffmpegFlags = append(ffmpegFlags, t.codec.GlobalFlags()...)
 	ffmpegFlags = append(ffmpegFlags, []string{
+		"-threads", "0", // Auto-detect available cores for optimal CPU usage
 		"-fflags", "+genpts+nobuffer", // Generate PTS if missing; reduce input buffering delay
 		"-flags", "+cgop", // Force closed GOPs
 		"-thread_queue_size", "512", // Input thread queue size to prevent stalls from slow stdin reads
@@ -263,6 +264,8 @@ func (t *Transcoder) getFlags() *execInfo {
 	ffmpegFlags = append(ffmpegFlags, hlsEventString...)
 	ffmpegFlags = append(ffmpegFlags, []string{
 		"-segment_format_options", "mpegts_flags=mpegts_copyts=1",
+		"-hls_allow_cache", "1", // Tell clients segments are cacheable (reduces re-fetches on stalls)
+		"-hls_start_number_source", "epoch", // Monotonic segment numbering across reconnects
 	}...)
 	ffmpegFlags = append(ffmpegFlags, t.codec.ExtraArguments()...)
 

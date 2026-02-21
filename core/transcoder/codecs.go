@@ -77,7 +77,12 @@ func (c *Libx264Codec) ExtraFilters() string {
 func (c *Libx264Codec) VariantFlags(v *HLSVariant) []string {
 	return []string{
 		fmt.Sprintf("-x264-params:v:%d", v.index),
-		"scenecut=0:open_gop=0", // How often the encoder checks the bitrate in order to meet average/max values
+		// scenecut=0: disable scene-change keyframes (segment alignment handled by -g/-keyint_min)
+		// open_gop=0: force closed GOPs for HLS segment independence
+		// bframes=3: enable B-frames for ~20% better compression (available since -tune zerolatency was removed)
+		// aq-mode=2: variance-based adaptive quantization — redistributes bits to complex regions
+		// aq-strength=1.2: slightly stronger AQ for better perceived quality at low bitrates
+		"scenecut=0:open_gop=0:bframes=3:aq-mode=2:aq-strength=1.2",
 		fmt.Sprintf("-bufsize:v:%d", v.index), fmt.Sprintf("%dk", v.getBufferSize()),
 		fmt.Sprintf("-profile:v:%d", v.index), "high", // Encoding profile
 	}

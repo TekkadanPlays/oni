@@ -15,6 +15,7 @@ import { loadRelayManager, syncPoolToActiveProfile } from '../nostr/stores/relay
 import { discoverIndexers } from '../nostr/stores/indexers';
 import { connectRelays, getPool } from '../nostr/stores/relay';
 import { loadLiveEventsEnabled, onStreamStart, onStreamEnd, getLiveEventState } from '../nostr/stores/liveevents';
+import { initTheme } from '../stores/theme';
 
 interface AppComponentState {
   loading: boolean;
@@ -78,6 +79,8 @@ export class App extends Component<{}, AppComponentState> {
   }
 
   componentDidMount() {
+    initTheme();
+
     this.unsub = store.subscribe(() => {
       const s = store.getState();
       const newOnline = s.status?.online || false;
