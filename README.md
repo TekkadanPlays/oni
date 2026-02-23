@@ -4,6 +4,18 @@
   </a>
 </p>
 
+> ## ⚠️ DEPRECATED
+>
+> **Oni has been deprecated in favor of a custom deployment of [OvenMediaEngine](https://github.com/AirenSoft/OvenMediaEngine) (OME).**
+>
+> The production live streaming service at **live.mycelium.social** now runs on OME, which provides superior LLHLS/WebRTC streaming, lower latency, and better scalability compared to the Owncast-based approach.
+>
+> - **Production live service**: [TekkadanPlays/mycelium-live](https://github.com/TekkadanPlays/mycelium-live) — Bun/InfernoJS frontend + OvenMediaEngine backend
+> - **OvenMediaEngine**: [AirenSoft/OvenMediaEngine](https://github.com/AirenSoft/OvenMediaEngine) — sub-second latency streaming server
+> - **Full ecosystem**: [TekkadanPlays/relay-tools-images](https://github.com/TekkadanPlays/relay-tools-images) — relay-tools infrastructure (HAProxy, strfry, relaycreator, OME, Ergo IRC, Hyphae)
+>
+> This repository is preserved for anyone who wants to fork or reference the Owncast + Nostr integration work. No further development is planned.
+
 <p align="center">
 	<strong>Take control over your content and stream it yourself with Nostr support.</strong>
 </p>
