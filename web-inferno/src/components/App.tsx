@@ -15,6 +15,7 @@ import { loadRelayManager, syncPoolToActiveProfile } from '../nostr/stores/relay
 import { discoverIndexers } from '../nostr/stores/indexers';
 import { connectRelays, getPool } from '../nostr/stores/relay';
 import { loadLiveEventsEnabled, onStreamStart, onStreamEnd, getLiveEventState } from '../nostr/stores/liveevents';
+import { loadLiveConfig } from '../nostr/stores/liveconfig';
 import { initTheme } from '../stores/theme';
 
 interface AppComponentState {
@@ -118,6 +119,7 @@ export class App extends Component<{}, AppComponentState> {
     loadRelayManager();
     syncPoolToActiveProfile();
     loadLiveEventsEnabled();
+    loadLiveConfig();
 
     // Start indexer discovery early
     discoverIndexers(10).catch((err) =>

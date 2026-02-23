@@ -5,7 +5,7 @@ import { cn } from 'blazecn';
 import { store } from '../../store';
 import { ThemeSelector } from '../ThemeSelector';
 
-export type AdminTab = 'overview' | 'general' | 'video' | 'chat' | 'logs' | 'viewers' | 'tokens' | 'nostr' | 'relays';
+export type AdminTab = 'overview' | 'general' | 'video' | 'chat' | 'logs' | 'viewers' | 'tokens' | 'nostr' | 'relays' | 'nostr-live';
 
 interface AdminShellProps {
   activeTab: AdminTab;
@@ -67,6 +67,12 @@ const IconRadio = () => (
     <circle cx="12" cy="12" r="2" /><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14" />
   </svg>
 );
+const IconLive = () => (
+  <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <polygon points="23 7 16 12 23 17 23 7" /><rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+    <circle cx="8" cy="12" r="1.5" fill="currentColor" />
+  </svg>
+);
 const IconArrowLeft = () => (
   <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
@@ -99,6 +105,7 @@ const MENU: MenuSection[] = [
     items: [
       { id: 'nostr', label: 'Identity', icon: IconZap },
       { id: 'relays', label: 'Relays', icon: IconRadio },
+      { id: 'nostr-live', label: 'Nostr Live', icon: IconLive },
     ],
   },
   {

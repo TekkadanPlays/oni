@@ -5,6 +5,7 @@ import { createLiveEvent, publishLiveEvent, updateLiveEvent } from '../nip53';
 import { getAuthState } from './auth';
 import { getBootstrapState } from './bootstrap';
 import { getSelectedBroadcastUrls } from './broadcast';
+import { getLiveConfig } from './liveconfig';
 
 type Listener = () => void;
 
@@ -111,14 +112,22 @@ export async function onStreamStart(streamTitle: string, viewerCount: number): P
 
   try {
     const relays = getPublishRelays();
+    const liveConfig = getLiveConfig();
+    const participants = [
+      { pubkey: auth.pubkey, role: 'Host' },
+      ...liveConfig.participants,
+    ];
     const event = await createLiveEvent(auth.pubkey, {
       identifier: `oni-${Date.now()}`,
-      title: streamTitle || 'Live Stream',
+      title: liveConfig.title || streamTitle || 'Live Stream',
+      summary: liveConfig.summary || undefined,
+      image: liveConfig.image || undefined,
+      tags: liveConfig.tags.length > 0 ? liveConfig.tags : undefined,
       status: 'live',
       streamingUrl: `${window.location.origin}/hls/stream.m3u8`,
       starts: Math.floor(Date.now() / 1000),
       currentParticipants: viewerCount,
-      participants: [{ pubkey: auth.pubkey, role: 'Host' }],
+      participants,
       relays,
     });
 

@@ -91,19 +91,6 @@ export function setBroadcastRelaySelected(url: string, selected: boolean) {
   notify();
 }
 
-export function selectAllBroadcast() {
-  const next = new Set(state.relays.map((r) => r.url));
-  state = { ...state, selectedUrls: next };
-  persistSelected();
-  notify();
-}
-
-export function deselectAllBroadcast() {
-  state = { ...state, selectedUrls: new Set() };
-  persistSelected();
-  notify();
-}
-
 // Well-known broadcast relays as fallback
 const FALLBACK_BROADCAST: BroadcastRelay[] = [
   { url: 'wss://relay.damus.io', rtt: 100, nips: [1, 11, 53] },
@@ -210,14 +197,17 @@ async function fetchBroadcastFromRstate(count: number): Promise<BroadcastRelay[]
           nips,
         };
       })
-      .sort((a, b) => a.rtt - b.rtt);
+      // Sort: prefer relays with NIP-53 support, then by RTT
+      .sort((a, b) => {
+        const aHas53 = a.nips.includes(53) ? 0 : 1;
+        const bHas53 = b.nips.includes(53) ? 0 : 1;
+        if (aHas53 !== bHas53) return aHas53 - bHas53;
+        return a.rtt - b.rtt;
+      });
 
-    // Filter: NIP-53 relays first, then fill with others
     const seen = new Set<string>();
     const result: BroadcastRelay[] = [];
-    const nip53 = scored.filter((r) => r.nips.includes(53));
-    const other = scored.filter((r) => !r.nips.includes(53));
-    for (const r of [...nip53, ...other]) {
+    for (const r of scored) {
       if (seen.has(r.url)) continue;
       seen.add(r.url);
       result.push(r);
@@ -239,10 +229,14 @@ function upgradeViaNip66(count: number) {
     clearTimeout(timeout);
     if (relayMap.size === 0) return;
 
-    const all = Array.from(relayMap.values()).sort((a, b) => a.rtt - b.rtt);
-    const nip53 = all.filter((r) => r.nips.includes(53));
-    const other = all.filter((r) => !r.nips.includes(53));
-    const sorted = [...nip53, ...other].slice(0, count);
+    const sorted = Array.from(relayMap.values())
+      .sort((a, b) => {
+        const aHas53 = a.nips.includes(53) ? 0 : 1;
+        const bHas53 = b.nips.includes(53) ? 0 : 1;
+        if (aHas53 !== bHas53) return aHas53 - bHas53;
+        return a.rtt - b.rtt;
+      })
+      .slice(0, count);
 
     if (sorted.length > 0) {
       console.log('[broadcast] Upgraded to', sorted.length, 'relays via NIP-66');
